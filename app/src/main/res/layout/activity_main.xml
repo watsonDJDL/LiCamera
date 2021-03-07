@@ -2,21 +2,20 @@
 <FrameLayout
   xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools"
+  android:id="@+id/root_layout"
   android:layout_width="match_parent"
   android:layout_height="match_parent"
   tools:context=".MainActivity">
 
-  <Button
-    android:id="@+id/switch_btn"
-    android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
-    android:layout_gravity="top|right"
-    android:background="@drawable/switch_camera" />
-
-  <TextureView
-    android:id="@+id/texture_view"
+  <FrameLayout
+    android:id="@+id/camera_fragment"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_gravity="center"/>
+    android:layout_height="match_parent" />
+
+  <ImageView
+    android:id="@+id/capture_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
+
 
 </FrameLayout>

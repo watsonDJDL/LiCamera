@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:id="@+id/camera_fragment_root_view"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent">
+
+  <Button
+    android:id="@+id/switch_btn"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_gravity="top|right"
+    android:background="@drawable/switch_camera" />
+
+  <Button
+    android:id="@+id/take_picture_btn"
+    android:layout_height="wrap_content"
+    android:layout_width="wrap_content"
+    android:layout_gravity="center_horizontal|bottom" />
+
+  <com.example.licamera.Camera.CameraViewGroup
+    android:id="@+id/camera_preview_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:layout_gravity="center"/>
+
+</FrameLayout>
