@@ -1,6 +1,7 @@
 package com.example.licamera.Camera;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.TextureView;
@@ -9,9 +10,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.licamera.BaseFragment;
 import com.example.licamera.CommonUtil;
+import com.example.licamera.PictureFragment;
 import com.example.licamera.R;
 
 public class CameraFragment extends BaseFragment {
@@ -23,10 +26,13 @@ public class CameraFragment extends BaseFragment {
   private Button mTakePicBtn;
   private Button mSwitchBtn;
 
+  public CameraFragment() {
+    mCameraPresenter = new CameraPresenter(this);
+  }
+
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    mCameraPresenter = new CameraPresenter(this);
   }
 
   @Nullable
@@ -56,6 +62,12 @@ public class CameraFragment extends BaseFragment {
     mCameraPresenter.onResume();
   }
 
+  @Override
+  public void onPause() {
+    super.onPause();
+    mCameraPresenter.onPause();
+  }
+
   public CameraViewGroup getCameraViewGroup() {
     return mCameraViewGroup;
   }
@@ -79,6 +91,7 @@ public class CameraFragment extends BaseFragment {
         public void onClick(View v) {
           //mFragment.setContentView(mTextureView.getBitmap().);
           takePicture();
+
         }
       });
     }
@@ -91,7 +104,7 @@ public class CameraFragment extends BaseFragment {
     if (getCameraViewGroup() != null) {
       //先默认9：16
       int width = CommonUtil.getScreenShortAxis();
-      int height = width;//(int) (width / RATIO_3_4);
+      int height = (int) (width / RATIO_9_16);
       ViewGroup.LayoutParams cameraViewLayoutParams = mCameraViewGroup.getLayoutParams();
       cameraViewLayoutParams.width = width;
       cameraViewLayoutParams.height = height;

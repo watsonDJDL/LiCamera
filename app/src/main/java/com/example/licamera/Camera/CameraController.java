@@ -4,7 +4,9 @@ import static android.content.Context.CAMERA_SERVICE;
 import static android.os.Looper.getMainLooper;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import android.Manifest;
 import android.app.Activity;
@@ -12,6 +14,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
@@ -38,6 +41,7 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
+import com.example.licamera.CollectionUtil;
 import com.example.licamera.R;
 
 public class CameraController {
@@ -58,6 +62,7 @@ public class CameraController {
   private CaptureRequest.Builder mBuilder;
   private Bitmap mCurrentCaptureBitMap;
   private Handler childHandler, mainHandler;
+  private List<OnImageCaptureListener> mImageAvailableListeners = new ArrayList<>();
   private int mWidth;
   private int mHeight;
   private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
@@ -105,8 +110,7 @@ public class CameraController {
   public static CameraController getInstance()
   {
     CameraController controller = mInstance;
-    if (mInstance == null)
-    {
+    if (mInstance == null) {
       synchronized (CameraController.class)
       {
         controller = mInstance;
@@ -226,14 +230,32 @@ public class CameraController {
         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);//由缓冲区存入字节数组
-        final Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        final Bitmap bitmap = rotateBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
         if (bitmap != null) {
-          iv_show.setImageBitmap(bitmap);//这里就拿到了拍到的照片
+          //iv_show.setImageBitmap(bitmap);//这里就拿到了拍到的照片
+          if (!CollectionUtil.isEmpty(mImageAvailableListeners)) {
+            for (OnImageCaptureListener listener : mImageAvailableListeners) {
+              listener.onImageCapture(bitmap);
+            }
+          }
           mCurrentCaptureBitMap = bitmap;
         }
       }
     }, mainHandler);
   }
+
+  interface OnImageCaptureListener {
+    void onImageCapture(Bitmap bitmap);
+  }
+
+  public void addOnImageAvailableListener(OnImageCaptureListener listener) {
+    mImageAvailableListeners.add(listener);
+  }
+
+  public void removeOnImageAvailableListener(OnImageCaptureListener listener) {
+    mImageAvailableListeners.remove(listener);
+  }
+
 
   private void openCamera() {
     if (ActivityCompat.checkSelfPermission(mCameraActivity, Manifest.permission.CAMERA)
@@ -325,6 +347,17 @@ public class CameraController {
     } catch (CameraAccessException e) {
       e.printStackTrace();
     }
+  }
+
+  /**
+   * 旋转图片
+   * @return 旋转后图片（只是修改了Bitmap对象，没有修改图片文件)
+   */
+  public Bitmap rotateBitmap(Bitmap bmp) {
+    Matrix matrix = new Matrix();
+    matrix.postRotate(90);
+    Bitmap rotatedBitMap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
+    return rotatedBitMap;
   }
 
   public boolean setFocus(@NonNull Rect r, int width, int height) {

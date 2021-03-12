@@ -15,64 +15,49 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.example.licamera.BasePresenter;
+import com.example.licamera.PictureFragment;
 import com.example.licamera.R;
 
 import io.reactivex.rxjava3.core.Observable;
 
-public class CameraPresenter implements BasePresenter {
+public class CameraPresenter implements BasePresenter, CameraController.OnImageCaptureListener {
   private final static String TAG = "CameraPresenter";
   private CameraViewGroup mCameraViewGroup;
   //控制相机的Controller
   private CameraController mCameraController;
+  private CameraFragment mFragment;
+
+  public CameraPresenter(CameraFragment cameraFragment) {
+    mFragment = cameraFragment;
+  }
 
   @Override
   public void onViewCreated(View view) {
     mCameraViewGroup = view.findViewById(R.id.camera_preview_view);
     mCameraController = CameraController.getInstance();
+    assert mCameraController != null;
+    mCameraController.addOnImageAvailableListener(this);
   }
 
   @Override
   public void onResume() {
-    if (mCameraViewGroup != null && mCameraViewGroup.getHandler() == null) {
+    if (mCameraViewGroup != null && mCameraViewGroup.getCameraFocusHandler() == null) {
       setCameraFocusHandler();
     }
   }
 
-  //保存文件到指定路径
-  public static boolean saveImageToGallery(Context context, Bitmap bmp) {
-    // 首先保存图片
-    String storePath = Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + "dearxy";
-    File appDir = new File(storePath);
-    if (!appDir.exists()) {
-      appDir.mkdir();
-    }
-    String fileName = System.currentTimeMillis() + ".jpg";
-    File file = new File(appDir, fileName);
-    try {
-      FileOutputStream fos = new FileOutputStream(file);
-      //通过io流的方式来压缩保存图片
-      boolean isSuccess = bmp.compress(Bitmap.CompressFormat.JPEG, 60, fos);
-      fos.flush();
-      fos.close();
-
-      //把文件插入到系统图库
-      MediaStore.Images.Media.insertImage(context.getContentResolver(), file.getAbsolutePath(), fileName, null);
-
-      //保存图片后发送广播通知更新数据库
-      Uri uri = Uri.fromFile(file);
-      context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-      if (isSuccess) {
-        return true;
-      } else {
-        return false;
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    return false;
+  public void onPause() {
+    mCameraController.removeOnImageAvailableListener(this);
   }
+
+  @Override
+  public void onDestroyView() {
+    mCameraController.removeOnImageAvailableListener(this);
+  }
+
 
   public void onCameraSwitch() {
     if (mCameraController != null) {
@@ -84,6 +69,7 @@ public class CameraPresenter implements BasePresenter {
     if (mCameraController != null) {
       mCameraController.takePicture();
     }
+
   }
 
   private void setCameraFocusHandler() {
@@ -96,5 +82,19 @@ public class CameraPresenter implements BasePresenter {
 
   private CameraViewGroup getCameraViewGroup() {
     return mCameraViewGroup;
+  }
+
+  @Override
+  public void onImageCapture(Bitmap bitmap) {
+    startPictureFragment(bitmap);
+  }
+
+  private void startPictureFragment(Bitmap bitmap) {
+    FragmentTransaction transaction = mFragment.getParentFragmentManager().beginTransaction();
+    PictureFragment pictureFragment = new PictureFragment(bitmap);
+    transaction.replace(mFragment.getId(), pictureFragment);
+    transaction.addToBackStack(null);
+    transaction.show(pictureFragment);
+    transaction.commit();
   }
 }

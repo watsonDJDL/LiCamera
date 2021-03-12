@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--拍照后，编辑前的照片显示中间态 -->
+<FrameLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  xmlns:tools="http://schemas.android.com/tools"
+  android:layout_width="match_parent"
+  android:layout_height="match_parent"
+    android:id="@+id/picture_intermediate_fragment_layout">
+    <LinearLayout
+        android:id="@+id/picture_top_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/picture_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"/>
+
+    <FrameLayout
+        android:layout_gravity="bottom"
+        android:id="@+id/picture_intermediate_bottom_area"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:text="@string/picture_intermediate_back_btn"
+            android:id="@+id/delete_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_button"
+            android:layout_gravity="start" />
+        <Button
+            android:text="@string/picture_intermediate_save_btn"
+            android:id="@+id/select_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round_button"
+            android:layout_gravity="end"/>
+    </FrameLayout>
+
+
+</FrameLayout>
