@@ -1,20 +1,11 @@
 package com.example.licamera.Camera;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-
-import android.content.Context;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
-import android.net.Uri;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.os.Build;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import androidx.fragment.app.Fragment;
+
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.example.licamera.BasePresenter;
@@ -23,12 +14,13 @@ import com.example.licamera.R;
 
 import io.reactivex.rxjava3.core.Observable;
 
-public class CameraPresenter implements BasePresenter, CameraController.OnImageCaptureListener {
+public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptureListener {
   private final static String TAG = "CameraPresenter";
   private CameraViewGroup mCameraViewGroup;
-  //控制相机的Controller
-  private CameraController mCameraController;
+  //控制相机
+  private CameraHelper mCameraHelper;
   private CameraFragment mFragment;
+  private boolean mIsRecording;
 
   public CameraPresenter(CameraFragment cameraFragment) {
     mFragment = cameraFragment;
@@ -36,10 +28,10 @@ public class CameraPresenter implements BasePresenter, CameraController.OnImageC
 
   @Override
   public void onViewCreated(View view) {
-    mCameraViewGroup = view.findViewById(R.id.camera_preview_view);
-    mCameraController = CameraController.getInstance();
-    assert mCameraController != null;
-    mCameraController.addOnImageAvailableListener(this);
+    mCameraViewGroup = view.findViewById(R.id.camera_view);
+    mCameraHelper = CameraHelper.getInstance();
+    assert mCameraHelper != null;
+    mCameraHelper.addOnImageAvailableListener(this);
   }
 
   @Override
@@ -50,32 +42,53 @@ public class CameraPresenter implements BasePresenter, CameraController.OnImageC
   }
 
   public void onPause() {
-    mCameraController.removeOnImageAvailableListener(this);
+    mCameraHelper.removeOnImageAvailableListener(this);
   }
 
   @Override
   public void onDestroyView() {
-    mCameraController.removeOnImageAvailableListener(this);
+    mCameraHelper.removeOnImageAvailableListener(this);
   }
 
 
   public void onCameraSwitch() {
-    if (mCameraController != null) {
-      mCameraController.switchCamera();
+    if (mCameraHelper != null) {
+      mCameraHelper.switchCamera();
     }
   }
 
   public void onTakingPicture() {
-    if (mCameraController != null) {
-      mCameraController.takePicture();
+    if (mCameraHelper != null) {
+      mCameraHelper.takePicture();
     }
+  }
 
+  public void onRecordBtnClick() {
+    if (mIsRecording) {
+      stopRecord();
+      mIsRecording = false;
+    } else {
+      startRecord();
+      mIsRecording = true;
+    }
+  }
+
+  public void startRecord() {
+    if (mCameraHelper != null) {
+      mCameraHelper.startRecord();
+    }
+  }
+
+  public void stopRecord() {
+    if (mCameraHelper != null) {
+      mCameraHelper.stopRecord();
+    }
   }
 
   private void setCameraFocusHandler() {
     getCameraViewGroup().setCameraFocusHandler(r -> {
       Log.d(TAG, "camera start focusing");
-      return Observable.fromCallable(() -> mCameraController
+      return Observable.fromCallable(() -> mCameraHelper
           .setFocus(r, getCameraViewGroup().getWidth(), getCameraViewGroup().getHeight()));
     });
   }

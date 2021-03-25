@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.opengl.GLSurfaceView;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
@@ -16,6 +17,9 @@ import androidx.core.app.ActivityCompat;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+
+import jp.co.cyberagent.android.gpuimage.GPUImage;
+import jp.co.cyberagent.android.gpuimage.filter.GPUImageGrayscaleFilter;
 
 public class PicturePresenter implements BasePresenter{
     PictureFragment mFragment;
@@ -43,6 +47,13 @@ public class PicturePresenter implements BasePresenter{
     @Override
     public void onDestroyView() {
 
+    }
+
+    public void setTestFilter() {
+        GPUImage gpuImage = new GPUImage(mFragment.getContext());
+        gpuImage.setImage(mBitmap);
+        gpuImage.setFilter(new GPUImageGrayscaleFilter());
+        mBitmap = gpuImage.getBitmapWithFilterApplied();
     }
 
     public void saveImage() {

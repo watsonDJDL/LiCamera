@@ -4,12 +4,13 @@ import static android.content.Context.CAMERA_SERVICE;
 import static android.hardware.camera2.params.SessionConfiguration.SESSION_REGULAR;
 import static android.os.Looper.getMainLooper;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
-import java.util.concurrent.Executor;
 
 import android.Manifest;
 import android.app.Activity;
@@ -34,6 +35,7 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
 import android.os.Build;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.DisplayMetrics;
@@ -43,28 +45,26 @@ import android.util.SparseIntArray;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
 import com.example.licamera.CollectionUtil;
+import com.example.licamera.FrameMode;
 import com.example.licamera.LiApplication;
-import com.example.licamera.R;
 
-public class CameraController {
+public class CameraHelper {
 
   private final static String CAMERA_FRONT = "0";
   private final static String CAMERA_BACK = "1";
   private final static float RATIO_9_16 = 9f / 16;
-  private static final String TAG = "CameraController";
+  private static final String TAG = "CameraHelper";
 
   private Activity mCameraActivity;
   private CameraManager mCameraManager;
   private TextureView mTextureView;
-  private ImageView iv_show;
   private String mCameraId = "1";
   private CameraCaptureSession mCaptureSession;
   private MediaRecorder mMediaRecorder;
@@ -95,11 +95,7 @@ public class CameraController {
     @Override
     public void onOpened(CameraDevice cameraDevice) {
       mCameraDevice = cameraDevice;
-      try {
-        createCameraPreview();
-      } catch (CameraAccessException e) {
-        e.printStackTrace();
-      }
+      createCameraPreview();
     }
 
     @Override
@@ -115,15 +111,15 @@ public class CameraController {
     }
   };
 
-  public static CameraController mInstance;
+  public static CameraHelper mInstance;
 
-  public static CameraController getInstance()
+  public static CameraHelper getInstance()
   {
-    CameraController controller = mInstance;
+    CameraHelper helper = mInstance;
     if (mInstance == null) {
-      synchronized (CameraController.class)
+      synchronized (CameraHelper.class)
       {
-        controller = mInstance;
+        helper = mInstance;
         if (mInstance == null)
         {
           return null;//这里要改进，看怎么才能拿到合适的Activity
@@ -131,14 +127,13 @@ public class CameraController {
       }
     }
 
-    return controller;
+    return helper;
   }
 
-  public CameraController(Activity cameraActivity) {
+  public CameraHelper(Activity cameraActivity) {
     mInstance = this;
     mCameraActivity = cameraActivity;
     mCameraManager = (CameraManager)mCameraActivity.getSystemService(CAMERA_SERVICE);
-    iv_show =  mCameraActivity.findViewById(R.id.capture_view);
     HandlerThread handlerThread = new HandlerThread("Camera2");
     handlerThread.start();
     childHandler = new Handler(handlerThread.getLooper());
@@ -158,79 +153,82 @@ public class CameraController {
   /**
    * 创建预览部分，session用于预览
    */
-  private void createCameraPreview() throws CameraAccessException {
-    SurfaceTexture texture = mTextureView.getSurfaceTexture();
-    CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
-    StreamConfigurationMap map =
-        characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-    Size previewSize = CameraUtils
-        .getPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), mWidth, mHeight);
-    ViewGroup.LayoutParams textureLayoutParams = mTextureView.getLayoutParams();
-    textureLayoutParams.height = (int) (mTextureView.getWidth() / RATIO_9_16);
-    mTextureView.setLayoutParams(textureLayoutParams);
-    texture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
-    Surface surface = new Surface(texture);
-    CaptureRequest.Builder  builder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-    builder.addTarget(surface);
-    mCameraDevice.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface()),
-        new CameraCaptureSession.StateCallback() {
-          @Override
-          public void onConfigured(@NonNull CameraCaptureSession session) {
-            //如果相机已经关闭了
-            if (null == mCameraDevice) {
-              return;
-            }
-            mCaptureSession = session;
-            try {
-              mCaptureSession.setRepeatingRequest(builder.build(), mSessionCaptureCallback, childHandler);
-            } catch (CameraAccessException e) {
-              e.printStackTrace();
-            }
-          }
+  private void createCameraPreview() {
+    try {
+      SurfaceTexture texture = mTextureView.getSurfaceTexture();
+      CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
+      StreamConfigurationMap map =
+              characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+      Size previewSize = CameraUtils
+              .getPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), mWidth, mHeight);
+      //ViewGroup.LayoutParams textureLayoutParams = mTextureView.getLayoutParams();
+      //textureLayoutParams.height = (int) (mTextureView.getWidth() / RATIO_9_16);
+      //mTextureView.setLayoutParams(textureLayoutParams);
+      texture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
+      Surface surface = new Surface(texture);
+      CaptureRequest.Builder  builder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+      builder.addTarget(surface);
+      mCameraDevice.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface()),
+              new CameraCaptureSession.StateCallback() {
+                @Override
+                public void onConfigured(@NonNull CameraCaptureSession session) {
+                  //如果相机已经关闭了
+                  if (null == mCameraDevice) {
+                    return;
+                  }
+                  mCaptureSession = session;
+                  try {
+                    mCaptureSession.setRepeatingRequest(builder.build(), mSessionCaptureCallback, childHandler);
+                  } catch (CameraAccessException e) {
+                    e.printStackTrace();
+                  }
+                }
 
-          @Override
-          public void onConfigureFailed(@NonNull CameraCaptureSession session) {
+                @Override
+                public void onConfigureFailed(@NonNull CameraCaptureSession session) {
 
-          }
-        }, childHandler);
+                }
+              }, childHandler);
+    } catch (CameraAccessException e) {
+      Log.e(TAG, "CreateCameraPreview error ", e);
+    }
   }
 
   //创建录制时相关的方法
-
-  @RequiresApi(api = Build.VERSION_CODES.N)
-  private void createRecordCameraSession() throws CameraAccessException {
+  @RequiresApi(api = Build.VERSION_CODES.P)
+  private void createRecordCameraSession(){
     try {
       closeCaptureSession();
       //创建一个ImageRecorder通过这个来拿到需要的surface
       setUpMediaRecorder();
-      CaptureRequest.Builder requestBuilder= createRecordRequestBuilder();
+      CaptureRequest.Builder requestBuilder = createRecordRequestBuilder();
       SessionConfiguration sessionConfiguration = new SessionConfiguration(SESSION_REGULAR,
-          createRecordOutputConfiguration(), (Executor) childHandler,
-          new CameraCaptureSession.StateCallback() {
-            @Override
-            public void onConfigured(@NonNull CameraCaptureSession session) {
-              mCaptureSession = session;
-              if (mCameraDevice == null) {
-                return;
-              }
-              try{
-                requestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
-                HandlerThread thread = new HandlerThread("CameraPreview");
-                thread.start();
-                mCaptureSession.setRepeatingRequest(requestBuilder.build(), mSessionCaptureCallback, childHandler);
-                mCameraActivity.runOnUiThread(() -> {
-                  mMediaRecorder.start();
-                });
-              } catch (CameraAccessException e) {
-                Log.e(TAG, "CameraRecord Set repeating request failed", e);
-              }
-            }
+              createRecordOutputConfiguration(), LiApplication.getContext().getMainExecutor(),
+              new CameraCaptureSession.StateCallback() {
+                @Override
+                public void onConfigured(@NonNull CameraCaptureSession session) {
+                  mCaptureSession = session;
+                  if (mCameraDevice == null) {
+                    return;
+                  }
+                  try {
+                    requestBuilder.set(CaptureRequest.CONTROL_MODE, CameraMetadata.CONTROL_MODE_AUTO);
+                    HandlerThread thread = new HandlerThread("CameraPreview");
+                    thread.start();
+                    mCaptureSession.setRepeatingRequest(requestBuilder.build(), mSessionCaptureCallback, childHandler);
+                    mCameraActivity.runOnUiThread(() -> {
+                      mMediaRecorder.start();
+                    });
+                  } catch (CameraAccessException e) {
+                    Log.e(TAG, "CameraRecord Set repeating request failed", e);
+                  }
+                }
 
-            @Override
-            public void onConfigureFailed(@NonNull CameraCaptureSession session) {
-              Log.e(TAG, "Error: RecordCaptureSession configured failed");
-            }
-          });
+                @Override
+                public void onConfigureFailed(@NonNull CameraCaptureSession session) {
+                  Log.e(TAG, "Error: RecordCaptureSession configured failed");
+                }
+              });
 
       mCameraDevice.createCaptureSession(sessionConfiguration);
     } catch (CameraAccessException e) {
@@ -280,18 +278,21 @@ public class CameraController {
     mMediaRecorder.setAudioSource(MediaRecorder.AudioSource.MIC);
     mMediaRecorder.setVideoSource(MediaRecorder.VideoSource.SURFACE);
     mMediaRecorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-    String mNextVideoAbsolutePath = getVideoFilePath();
-    mMediaRecorder.setOutputFile(mNextVideoAbsolutePath);
-    mMediaRecorder.setVideoEncodingBitRate(10000000);
-    mMediaRecorder.setVideoFrameRate(30);
+    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+    mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
     CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
     StreamConfigurationMap map =
-        characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+            characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
     Size previewSize = CameraUtils
-        .getPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), mWidth, mHeight);
+            .getPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), mWidth, mHeight);
     mMediaRecorder.setVideoSize(previewSize.getWidth(), previewSize.getHeight());
-    mMediaRecorder.setVideoEncoder(MediaRecorder.VideoEncoder.H264);
-    mMediaRecorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+    mMediaRecorder.setVideoFrameRate(30);
+    String mNextVideoAbsolutePath = getOutputMediaFile();
+    if (mNextVideoAbsolutePath != null) {
+      mMediaRecorder.setOutputFile(mNextVideoAbsolutePath);
+    }
+    mMediaRecorder.setVideoEncodingBitRate(10000000);
+
     mMediaRecorder.setOrientationHint(90);
 
     try {
@@ -301,15 +302,46 @@ public class CameraController {
     }
   }
 
-  private String getVideoFilePath() {
-    return LiApplication.getContext().getExternalCacheDir().toString() + "/DCIM/Li" +
-        System.currentTimeMillis() + ".mp4";
+  /*
+   * 获取手机外部存储路径
+   * */
+  private String getOutputFile() {
+    File mediaFile = null;
+    boolean OutputExist = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
+    if (OutputExist) {
+      mediaFile = LiApplication.getContext().getExternalCacheDir();
+      return mediaFile.toString();
+    }
+    return null;
   }
 
-  private void stopRecord() throws CameraAccessException {
-    mMediaRecorder.stop();
-    mMediaRecorder.reset();
-    createCameraPreview();
+  /*
+   * 获取录制视频的日期 作为存储文件路径一部分
+   * */
+  private String getDate() {
+    Log.d(TAG, "获取录制视频的日期 ");
+    Calendar ca = Calendar.getInstance();
+    int year = ca.get(Calendar.YEAR);           // 获取年份
+    int month = ca.get(Calendar.MONTH);         // 获取月份
+    int day = ca.get(Calendar.DATE);            // 获取日
+    String date = "" + year + "_" + (month + 1) + "_" + day;
+    return date;
+  }
+
+  /*
+   *创建视频存储文件夹 录制好的视频存储在手机外部存储中 以录像时间+mp4格式命名
+   * */
+  private String getOutputMediaFile() {
+    Log.d(TAG, "获取视频存储的位置 ");
+    String mediaPath = getOutputFile();
+    if (mediaPath != null) {
+      File mediaFile = new File(mediaPath + "/recordVideo");
+      if (!mediaFile.exists()) {
+        mediaFile.mkdirs();
+      }
+      return mediaFile.getAbsolutePath() + File.separator + getDate() + ".mp4";
+    }
+    return null;
   }
 
   private void initTextureView() {
@@ -359,9 +391,9 @@ public class CameraController {
         ByteBuffer buffer = image.getPlanes()[0].getBuffer();
         byte[] bytes = new byte[buffer.remaining()];
         buffer.get(bytes);//由缓冲区存入字节数组
-        final Bitmap bitmap = rotateBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+        Bitmap bitmap = rotateBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+        bitmap = resizeBitMap(bitmap, mWidth, mHeight);
         if (bitmap != null) {
-          //iv_show.setImageBitmap(bitmap);//这里就拿到了拍到的照片
           if (!CollectionUtil.isEmpty(mImageAvailableListeners)) {
             for (OnImageCaptureListener listener : mImageAvailableListeners) {
               listener.onImageCapture(bitmap);
@@ -371,6 +403,16 @@ public class CameraController {
         }
       }
     }, mainHandler);
+  }
+
+  //bitmap拿到的大小是1200*1600不符合要求，不过经过这个函数后画面会被拉伸扭曲，继续寻找解决方案
+  private Bitmap resizeBitMap(Bitmap rootImg, int goalW, int goalH) {
+    int rootW = rootImg.getWidth();
+    int rootH = rootImg.getHeight();
+    // graphics 包下的
+    Matrix matrix = new Matrix();
+    matrix.postScale(goalW * 1.0f / rootW, goalH * 1.0f / rootH);
+    return Bitmap.createBitmap(rootImg, 0, 0, rootW, rootH, matrix, true);
   }
 
   interface OnImageCaptureListener {
@@ -481,7 +523,13 @@ public class CameraController {
   public void startRecord() {
     if(mCameraDevice == null) return;
     closeCaptureSession();
+    createRecordCameraSession();
+  }
 
+  public void stopRecord() {
+    mMediaRecorder.stop();
+    mMediaRecorder.reset();
+    createCameraPreview();
   }
 
   //关闭会话（用于录制时关闭预览的会话）
@@ -509,5 +557,10 @@ public class CameraController {
     return true;
   }
 
+  public void onCameraFrameChanged(FrameMode frameMode) {
+    closeCaptureSession();
+    mHeight = CameraUtils.getCameraViewHeight(frameMode,mWidth);
+    createCameraPreview();
 
+  }
 }

@@ -1,14 +1,26 @@
 package com.example.licamera.Camera;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.hardware.Camera;
+import android.media.Image;
+import android.util.Log;
 import android.util.Size;
 
+import com.example.licamera.FrameMode;
+
 public class CameraUtils {
+
+  private static final String TAG = "CameraUtils";
+  public static final int COLOR_FormatI420 = 1;
+  public static final int COLOR_FormatNV21 = 2;
+  private static boolean VERBOSE = false;
 
   public static int getCameraNumbers() {
     return Camera.getNumberOfCameras();
@@ -35,6 +47,10 @@ public class CameraUtils {
       });
     }
     return sizes[0];
+  }
+
+  public static int getCameraViewHeight(FrameMode mode, int width) {
+    return (int)(width / mode.value);
   }
 
 }

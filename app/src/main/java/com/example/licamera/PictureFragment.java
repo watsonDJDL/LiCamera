@@ -1,6 +1,7 @@
 package com.example.licamera;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -21,6 +23,12 @@ public class PictureFragment extends BaseFragment{
     }
 
     @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        mPicturePresenter.setTestFilter();
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
@@ -29,9 +37,9 @@ public class PictureFragment extends BaseFragment{
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mPicturePresenter.onViewCreated(view);
-        Button backButton = view.findViewById(R.id.delete_button);
+        ImageButton backButton = view.findViewById(R.id.delete_button);
         backButton.setOnClickListener(v -> onBackBtnClick());
-        Button selectButton = view.findViewById(R.id.select_button);
+        ImageButton selectButton = view.findViewById(R.id.select_button);
         selectButton.setOnClickListener(v -> onSelectButtonClick());
     }
 

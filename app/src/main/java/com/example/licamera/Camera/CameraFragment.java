@@ -1,33 +1,39 @@
 package com.example.licamera.Camera;
 
 import android.annotation.SuppressLint;
-import android.graphics.Bitmap;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.annotation.RequiresApi;
 
 import com.example.licamera.BaseFragment;
 import com.example.licamera.CommonUtil;
-import com.example.licamera.PictureFragment;
+import com.example.licamera.FramePresenter;
 import com.example.licamera.R;
+
+import static com.example.licamera.FrameMode.FRAME_9_16;
 
 public class CameraFragment extends BaseFragment {
   private static final String TAG = "CameraFragment";
-  private final static float RATIO_9_16 = 9f / 16;
-  private final static float RATIO_3_4 = 3f / 4;
   private CameraPresenter mCameraPresenter;
+  private FramePresenter mFramePresenter;
   private CameraViewGroup mCameraViewGroup;
   private Button mTakePicBtn;
-  private Button mSwitchBtn;
+  private Button mRecordBtn;
+  private ImageView mSwitchBtn;
+  private ImageView mFrameSwitchBtn;
 
   public CameraFragment() {
     mCameraPresenter = new CameraPresenter(this);
+    mFramePresenter = new FramePresenter(this);
   }
 
   @Override
@@ -46,26 +52,37 @@ public class CameraFragment extends BaseFragment {
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
     mCameraPresenter.onViewCreated(view);
-    mCameraViewGroup = view.findViewById(R.id.camera_preview_view);
+    mFramePresenter.onViewCreated(view);
+    mCameraViewGroup = view.findViewById(R.id.camera_view);
     TextureView textureView = mCameraViewGroup.getTextureView();
-    assert CameraController.getInstance() != null;
-    CameraController.getInstance().setTextureView(textureView);
+    assert CameraHelper.getInstance() != null;
+    CameraHelper.getInstance().setTextureView(textureView);
     mTakePicBtn = view.findViewById(R.id.take_picture_btn);
-    mSwitchBtn = view .findViewById(R.id.switch_btn);
-    setViewsListener();
-    setFrame();
+    mRecordBtn = view.findViewById(R.id.record_btn);
+    mSwitchBtn = view .findViewById(R.id.camera_switch_btn);
+    mFrameSwitchBtn = view.findViewById(R.id.frame_switch_btn);
+    setViewsClickListener();
+    mFramePresenter.onFrameStatusChanged(FRAME_9_16);
   }
 
   @Override
   public void onResume() {
     super.onResume();
     mCameraPresenter.onResume();
+    mFramePresenter.onResume();
   }
 
   @Override
   public void onPause() {
     super.onPause();
     mCameraPresenter.onPause();
+  }
+
+  @Override
+  public void onDestroyView() {
+    super.onDestroyView();
+    mCameraPresenter.onDestroyView();
+    mFramePresenter.onDestroyView();
   }
 
   public CameraViewGroup getCameraViewGroup() {
@@ -76,39 +93,18 @@ public class CameraFragment extends BaseFragment {
    * 设置Views的监听
    */
   @SuppressLint("ClickableViewAccessibility")
-  private void setViewsListener() {
+  private void setViewsClickListener() {
     if (mSwitchBtn != null) {
-      mSwitchBtn.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          switchCamera();
-        }
-      });
+      mSwitchBtn.setOnClickListener(v -> switchCamera());
     }
     if (mTakePicBtn != null) {
-      mTakePicBtn.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          //mFragment.setContentView(mTextureView.getBitmap().);
-          takePicture();
-
-        }
-      });
+      mTakePicBtn.setOnClickListener(v -> takePicture());
     }
-  }
-
-  /**
-   * 后面要拆分到Frame控制逻辑中
-   */
-  private void setFrame() {
-    if (getCameraViewGroup() != null) {
-      //先默认9：16
-      int width = CommonUtil.getScreenShortAxis();
-      int height = (int) (width / RATIO_9_16);
-      ViewGroup.LayoutParams cameraViewLayoutParams = mCameraViewGroup.getLayoutParams();
-      cameraViewLayoutParams.width = width;
-      cameraViewLayoutParams.height = height;
-      mCameraViewGroup.setLayoutParams(cameraViewLayoutParams);
+    if(mRecordBtn != null) {
+      mRecordBtn.setOnClickListener(v -> mCameraPresenter.onRecordBtnClick());
+    }
+    if (mFrameSwitchBtn != null) {
+      mFrameSwitchBtn.setOnClickListener(v -> mFramePresenter.onFrameBtnClick());
     }
   }
 

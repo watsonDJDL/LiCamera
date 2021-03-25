@@ -5,12 +5,17 @@
   android:layout_width="match_parent"
   android:layout_height="match_parent">
 
-  <Button
-    android:id="@+id/switch_btn"
-    android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
+  <ImageView android:id="@+id/camera_switch_btn"
+    android:layout_height="40dp"
+    android:layout_width="40dp"
     android:layout_gravity="top|right"
-    android:background="@drawable/switch_camera" />
+    android:src="@mipmap/switch_camera" />
+
+  <ImageView android:id="@+id/frame_switch_btn"
+      android:layout_height="40dp"
+      android:layout_width="40dp"
+      android:layout_gravity="top|center_horizontal"
+      android:src="@mipmap/beauty_icon" />
 
   <Button
     android:id="@+id/take_picture_btn"
@@ -19,11 +24,16 @@
     android:layout_width="wrap_content"
     android:layout_gravity="center_horizontal|bottom" />
 
-  <com.example.licamera.Camera.CameraViewGroup
-    android:id="@+id/camera_preview_view"
+  <Button
+    android:id="@+id/record_btn"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:clickable="true"
-    android:layout_gravity="center"/>
+    android:layout_gravity="right|bottom"
+    android:text="@string/start_record_btn"/>
+
+  <com.example.licamera.Camera.CameraViewGroup
+    android:id="@+id/camera_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content" />
 
 </FrameLayout>
