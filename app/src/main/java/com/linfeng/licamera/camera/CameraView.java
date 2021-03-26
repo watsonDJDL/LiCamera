@@ -1,4 +1,4 @@
-package com.example.licamera.Camera;
+package com.linfeng.licamera.camera;
 
 import android.content.Context;
 import android.graphics.PointF;
@@ -9,7 +9,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 
-import com.example.licamera.CommonUtil;
+import com.linfeng.licamera.util.CommonUtil;
 
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.internal.functions.Functions;

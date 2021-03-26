@@ -1,4 +1,4 @@
-package com.example.licamera.Camera;
+package com.linfeng.licamera.camera;
 
 import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
@@ -11,8 +11,8 @@ import android.view.View;
 import android.view.animation.Interpolator;
 import androidx.annotation.NonNull;
 
-import com.example.licamera.CommonUtil;
-import com.example.licamera.R;
+import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.R;
 
 public class FocusView extends View implements Runnable {
   public static final float CIRCLE_RADIUS = CommonUtil.dip2px(80); // 对焦环直径

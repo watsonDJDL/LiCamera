@@ -1,16 +1,14 @@
-package com.example.licamera.Camera;
+package com.linfeng.licamera.camera;
 
 import android.graphics.Bitmap;
-import android.os.Build;
 import android.util.Log;
 import android.view.View;
 
-import androidx.annotation.RequiresApi;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.licamera.BasePresenter;
-import com.example.licamera.PictureFragment;
-import com.example.licamera.R;
+import com.linfeng.licamera.R;
+import com.linfeng.licamera.base.BasePresenter;
+import com.linfeng.licamera.PictureFragment;
 
 import io.reactivex.rxjava3.core.Observable;
 
@@ -57,7 +55,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
     }
   }
 
-  public void onTakingPicture() {
+  public void onTakePictureBtnClick() {
     if (mCameraHelper != null) {
       mCameraHelper.takePicture();
     }

@@ -1,7 +1,6 @@
-package com.example.licamera.Camera;
+package com.linfeng.licamera.camera;
 
 import android.annotation.SuppressLint;
-import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.TextureView;
@@ -12,14 +11,12 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 
-import com.example.licamera.BaseFragment;
-import com.example.licamera.CommonUtil;
-import com.example.licamera.FramePresenter;
-import com.example.licamera.R;
+import com.linfeng.licamera.R;
+import com.linfeng.licamera.base.BaseFragment;
+import com.linfeng.licamera.FramePresenter;
 
-import static com.example.licamera.FrameMode.FRAME_9_16;
+import static com.linfeng.licamera.FrameMode.FRAME_9_16;
 
 public class CameraFragment extends BaseFragment {
   private static final String TAG = "CameraFragment";
@@ -95,28 +92,16 @@ public class CameraFragment extends BaseFragment {
   @SuppressLint("ClickableViewAccessibility")
   private void setViewsClickListener() {
     if (mSwitchBtn != null) {
-      mSwitchBtn.setOnClickListener(v -> switchCamera());
+      mSwitchBtn.setOnClickListener(v ->  mCameraPresenter.onCameraSwitch());
     }
     if (mTakePicBtn != null) {
-      mTakePicBtn.setOnClickListener(v -> takePicture());
+      mTakePicBtn.setOnClickListener(v -> mCameraPresenter.onTakePictureBtnClick());
     }
     if(mRecordBtn != null) {
       mRecordBtn.setOnClickListener(v -> mCameraPresenter.onRecordBtnClick());
     }
     if (mFrameSwitchBtn != null) {
       mFrameSwitchBtn.setOnClickListener(v -> mFramePresenter.onFrameBtnClick());
-    }
-  }
-
-  private void switchCamera() {
-    if (mCameraPresenter != null) {
-      mCameraPresenter.onCameraSwitch();
-    }
-  }
-
-  private void takePicture() {
-    if (mCameraPresenter != null) {
-      mCameraPresenter.onTakingPicture();
     }
   }
 }

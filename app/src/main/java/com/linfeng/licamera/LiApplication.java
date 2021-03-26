@@ -1,4 +1,4 @@
-package com.example.licamera;
+package com.linfeng.licamera;
 
 import android.app.Application;
 import android.content.Context;

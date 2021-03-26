@@ -1,20 +1,17 @@
-package com.example.licamera;
+package com.linfeng.licamera;
 
 import android.view.View;
 import android.view.ViewGroup;
 
-import androidx.annotation.IntDef;
+import com.linfeng.licamera.base.BasePresenter;
+import com.linfeng.licamera.camera.CameraFragment;
+import com.linfeng.licamera.camera.CameraHelper;
+import com.linfeng.licamera.util.CommonUtil;
 
-import com.example.licamera.Camera.CameraFragment;
-import com.example.licamera.Camera.CameraHelper;
+import static com.linfeng.licamera.FrameMode.FRAME_3_4;
+import static com.linfeng.licamera.FrameMode.FRAME_9_16;
 
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-
-import static com.example.licamera.FrameMode.FRAME_3_4;
-import static com.example.licamera.FrameMode.FRAME_9_16;
-
-public class FramePresenter implements BasePresenter{
+public class FramePresenter implements BasePresenter {
     private static final float RATIO_9_16 = 9f / 16;
     private static final float RATIO_3_4 = 3f / 4;
     private static final float RATIO_1_1 = 1;

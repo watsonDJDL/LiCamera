@@ -1,4 +1,4 @@
-package com.example.licamera;
+package com.linfeng.licamera.util;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -6,6 +6,8 @@ import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import androidx.annotation.DimenRes;
 import androidx.annotation.StringRes;
+
+import com.linfeng.licamera.LiApplication;
 
 public class CommonUtil {
   private static int sScreenLongAxis = 0;

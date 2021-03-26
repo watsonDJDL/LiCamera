@@ -1,21 +1,20 @@
-package com.example.licamera;
+package com.linfeng.licamera;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-public class PictureFragment extends BaseFragment{
+import com.linfeng.licamera.base.BaseFragment;
+
+public class PictureFragment extends BaseFragment {
     private PicturePresenter mPicturePresenter;
 
     public PictureFragment(Bitmap bitmap) {

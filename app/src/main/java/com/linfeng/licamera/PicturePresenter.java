@@ -1,4 +1,4 @@
-package com.example.licamera;
+package com.linfeng.licamera;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,13 +6,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.opengl.GLSurfaceView;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.View;
 import android.widget.ImageView;
 
 import androidx.core.app.ActivityCompat;
+
+import com.linfeng.licamera.base.BasePresenter;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -21,7 +21,7 @@ import java.io.IOException;
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageGrayscaleFilter;
 
-public class PicturePresenter implements BasePresenter{
+public class PicturePresenter implements BasePresenter {
     PictureFragment mFragment;
     Bitmap mBitmap;
     public PicturePresenter(PictureFragment pictureFragment, Bitmap bitmap) {

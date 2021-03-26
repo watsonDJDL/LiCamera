@@ -1,4 +1,4 @@
-package com.example.licamera;
+package com.linfeng.licamera.util;
 
 import java.util.Collection;
 

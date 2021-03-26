@@ -1,4 +1,4 @@
-package com.example.licamera.Camera;
+package com.linfeng.licamera.camera;
 
 import android.content.Context;
 import android.util.AttributeSet;

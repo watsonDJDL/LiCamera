@@ -1,4 +1,4 @@
-package com.example.licamera.Camera;
+package com.linfeng.licamera.camera;
 
 import static android.content.Context.CAMERA_SERVICE;
 import static android.hardware.camera2.params.SessionConfiguration.SESSION_REGULAR;
@@ -51,9 +51,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 
-import com.example.licamera.CollectionUtil;
-import com.example.licamera.FrameMode;
-import com.example.licamera.LiApplication;
+import com.linfeng.licamera.util.CameraUtils;
+import com.linfeng.licamera.util.CollectionUtil;
+import com.linfeng.licamera.FrameMode;
+import com.linfeng.licamera.LiApplication;
 
 public class CameraHelper {
 

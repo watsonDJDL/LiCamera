@@ -1,19 +1,14 @@
-package com.example.licamera.Camera;
+package com.linfeng.licamera.util;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-import android.graphics.ImageFormat;
-import android.graphics.Rect;
 import android.hardware.Camera;
-import android.media.Image;
-import android.util.Log;
 import android.util.Size;
 
-import com.example.licamera.FrameMode;
+import com.linfeng.licamera.FrameMode;
 
 public class CameraUtils {
 

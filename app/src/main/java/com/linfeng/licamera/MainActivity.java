@@ -1,13 +1,8 @@
-package com.example.licamera;
+package com.linfeng.licamera;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -15,13 +10,8 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.licamera.Camera.CameraHelper;
-import com.example.licamera.Camera.CameraFragment;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.linfeng.licamera.camera.CameraHelper;
+import com.linfeng.licamera.camera.CameraFragment;
 
 public class MainActivity extends AppCompatActivity {
   private final static String TAG = "MainActivity";
