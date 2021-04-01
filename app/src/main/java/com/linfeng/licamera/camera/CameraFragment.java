@@ -11,7 +11,11 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.linfeng.licamera.CameraTabAdapter;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BaseFragment;
 import com.linfeng.licamera.FramePresenter;
@@ -23,10 +27,10 @@ public class CameraFragment extends BaseFragment {
   private CameraPresenter mCameraPresenter;
   private FramePresenter mFramePresenter;
   private CameraViewGroup mCameraViewGroup;
-  private Button mTakePicBtn;
-  private Button mRecordBtn;
+  private AppCompatImageButton mCameraBtn;
   private ImageView mSwitchBtn;
   private ImageView mFrameSwitchBtn;
+  private RecyclerView mCameraTabRecyclerView;
 
   public CameraFragment() {
     mCameraPresenter = new CameraPresenter(this);
@@ -36,6 +40,7 @@ public class CameraFragment extends BaseFragment {
   @Override
   public void onCreate(@Nullable Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    mCameraPresenter.onCreate();
   }
 
   @Nullable
@@ -50,12 +55,15 @@ public class CameraFragment extends BaseFragment {
     super.onViewCreated(view, savedInstanceState);
     mCameraPresenter.onViewCreated(view);
     mFramePresenter.onViewCreated(view);
+
     mCameraViewGroup = view.findViewById(R.id.camera_view);
     TextureView textureView = mCameraViewGroup.getTextureView();
     assert CameraHelper.getInstance() != null;
     CameraHelper.getInstance().setTextureView(textureView);
-    mTakePicBtn = view.findViewById(R.id.take_picture_btn);
-    mRecordBtn = view.findViewById(R.id.record_btn);
+
+    initCameraTabView(view);
+
+    mCameraBtn = view.findViewById(R.id.camera_btn);
     mSwitchBtn = view .findViewById(R.id.camera_switch_btn);
     mFrameSwitchBtn = view.findViewById(R.id.frame_switch_btn);
     setViewsClickListener();
@@ -94,14 +102,20 @@ public class CameraFragment extends BaseFragment {
     if (mSwitchBtn != null) {
       mSwitchBtn.setOnClickListener(v ->  mCameraPresenter.onCameraSwitch());
     }
-    if (mTakePicBtn != null) {
-      mTakePicBtn.setOnClickListener(v -> mCameraPresenter.onTakePictureBtnClick());
-    }
-    if(mRecordBtn != null) {
-      mRecordBtn.setOnClickListener(v -> mCameraPresenter.onRecordBtnClick());
+    if (mCameraBtn != null) {
+      mCameraBtn.setOnClickListener(v -> mCameraPresenter.onCameraBtnClick());
     }
     if (mFrameSwitchBtn != null) {
       mFrameSwitchBtn.setOnClickListener(v -> mFramePresenter.onFrameBtnClick());
     }
+  }
+
+  private void initCameraTabView(View view) {
+    mCameraTabRecyclerView = view.findViewById(R.id.camera_tab_recyclerView);
+    CameraTabAdapter adapter =
+            new CameraTabAdapter(getContext(), mCameraPresenter);
+    mCameraTabRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+    mCameraTabRecyclerView.setAdapter(adapter);
+    mCameraTabRecyclerView.bringToFront();
   }
 }

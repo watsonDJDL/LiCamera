@@ -34,6 +34,11 @@ public class PicturePresenter implements BasePresenter {
     }
 
     @Override
+    public void onCreate() {
+
+    }
+
+    @Override
     public void onViewCreated(View view) {
         ImageView captureView = view.findViewById(R.id.picture_view);
         captureView.setImageBitmap(mBitmap);

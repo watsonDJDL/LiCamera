@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-  xmlns:android="http://schemas.android.com/apk/res/android"
-  android:id="@+id/camera_fragment_root_view"
-  android:layout_width="match_parent"
-  android:layout_height="match_parent">
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/camera_fragment_root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
   <ImageView android:id="@+id/camera_switch_btn"
     android:layout_height="40dp"
@@ -17,19 +17,47 @@
       android:layout_gravity="top|center_horizontal"
       android:src="@mipmap/beauty_icon" />
 
-  <Button
-    android:id="@+id/take_picture_btn"
-    android:text="@string/take_picture_btn"
-    android:layout_height="wrap_content"
-    android:layout_width="wrap_content"
-    android:layout_gravity="center_horizontal|bottom" />
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/camera_tab_recyclerView"
+      android:layout_width="200dp"
+      android:layout_height="wrap_content"
+      android:layout_gravity="center" />
 
-  <Button
-    android:id="@+id/record_btn"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_gravity="right|bottom"
-    android:text="@string/start_record_btn"/>
+  <RelativeLayout
+      android:id="@+id/camera_action_bar_container"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_gravity="bottom"
+      android:padding="5dp">
+
+
+    <com.gcssloop.widget.RCRelativeLayout
+        android:layout_width="105dp"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        app:clip_background="true"
+        app:round_as_circle="true">
+
+      <androidx.appcompat.widget.AppCompatImageButton
+          android:id="@+id/camera_btn"
+          android:layout_height="wrap_content"
+          android:layout_width="wrap_content"
+          android:background="@color/transparent"
+          android:src="@drawable/camera_button"
+          android:layout_centerInParent="true"/>
+
+      <androidx.appcompat.widget.AppCompatImageView
+          android:id="@+id/little_red_point"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:layout_alignParentRight="true"
+          android:layout_centerVertical="true"
+          android:src="@drawable/little_red_point" />
+
+    </com.gcssloop.widget.RCRelativeLayout>
+
+
+  </RelativeLayout>
 
   <com.linfeng.licamera.camera.CameraViewGroup
     android:id="@+id/camera_view"

@@ -1,14 +1,18 @@
 package com.linfeng.licamera.camera;
 
 import android.graphics.Bitmap;
+import android.graphics.Camera;
 import android.util.Log;
 import android.view.View;
 
 import androidx.fragment.app.FragmentTransaction;
 
+import com.linfeng.licamera.CameraTabEntity;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BasePresenter;
 import com.linfeng.licamera.PictureFragment;
+
+import java.util.List;
 
 import io.reactivex.rxjava3.core.Observable;
 
@@ -20,8 +24,16 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   private CameraFragment mFragment;
   private boolean mIsRecording;
 
+  private CameraTabPresenter mCameraTabPresenter;//后面单独抽出来做addPresenter
+
   public CameraPresenter(CameraFragment cameraFragment) {
     mFragment = cameraFragment;
+  }
+
+  @Override
+  public void onCreate() {
+    mCameraTabPresenter = new CameraTabPresenter();
+    mCameraTabPresenter.onCreate();
   }
 
   @Override
@@ -30,6 +42,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
     mCameraHelper = CameraHelper.getInstance();
     assert mCameraHelper != null;
     mCameraHelper.addOnImageAvailableListener(this);
+    mCameraTabPresenter.onViewCreated(view);
   }
 
   @Override
@@ -37,6 +50,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
     if (mCameraViewGroup != null && mCameraViewGroup.getCameraFocusHandler() == null) {
       setCameraFocusHandler();
     }
+    mCameraTabPresenter.onResume();
   }
 
   public void onPause() {
@@ -46,6 +60,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   @Override
   public void onDestroyView() {
     mCameraHelper.removeOnImageAvailableListener(this);
+    mCameraTabPresenter.onDestroyView();
   }
 
 
@@ -55,32 +70,30 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
     }
   }
 
-  public void onTakePictureBtnClick() {
-    if (mCameraHelper != null) {
-      mCameraHelper.takePicture();
+  public void onCameraBtnClick() {
+    if (mCameraHelper == null) {
+      return;
     }
-  }
-
-  public void onRecordBtnClick() {
-    if (mIsRecording) {
-      stopRecord();
-      mIsRecording = false;
-    } else {
-      startRecord();
-      mIsRecording = true;
+    int status = mCameraTabPresenter.getCameraButtonStatus();
+    if (status == CameraTabId.TAKE_PICTURE) {
+      mCameraHelper.takePicture();
+    } else if (status == CameraTabId.RECORD) {
+      if (mIsRecording) {
+        stopRecord();
+        mIsRecording = false;
+      } else {
+        startRecord();
+        mIsRecording = true;
+      }
     }
   }
 
   public void startRecord() {
-    if (mCameraHelper != null) {
       mCameraHelper.startRecord();
-    }
   }
 
   public void stopRecord() {
-    if (mCameraHelper != null) {
       mCameraHelper.stopRecord();
-    }
   }
 
   private void setCameraFocusHandler() {
@@ -107,5 +120,13 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
     transaction.addToBackStack(null);
     transaction.show(pictureFragment);
     transaction.commit();
+  }
+
+  public List<CameraTabEntity> getCameraTabList() {
+    return mCameraTabPresenter.getCameraTabList();
+  }
+
+  public CameraTabPresenter getCameraTabPresenter() {
+    return mCameraTabPresenter;
   }
 }

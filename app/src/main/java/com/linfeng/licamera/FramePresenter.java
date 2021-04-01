@@ -25,6 +25,11 @@ public class FramePresenter implements BasePresenter {
     }
 
     @Override
+    public void onCreate() {
+
+    }
+
+    @Override
     public void onViewCreated(View view) {
 
     }
