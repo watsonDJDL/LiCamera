@@ -1,4 +1,4 @@
-package com.linfeng.licamera;
+package com.linfeng.licamera.picture;
 
 import android.app.Activity;
 import android.content.Context;
@@ -7,12 +7,20 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
 import androidx.core.app.ActivityCompat;
 
+import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BasePresenter;
+import com.linfeng.licamera.picture.PictureFragment;
+import com.linfeng.licamera.service.CharacterApiService;
+import com.linfeng.licamera.service.CharacterResponse;
+import com.linfeng.licamera.util.CommonUtil;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -20,6 +28,14 @@ import java.io.IOException;
 
 import jp.co.cyberagent.android.gpuimage.GPUImage;
 import jp.co.cyberagent.android.gpuimage.filter.GPUImageGrayscaleFilter;
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PicturePresenter implements BasePresenter {
     PictureFragment mFragment;
@@ -42,6 +58,8 @@ public class PicturePresenter implements BasePresenter {
     public void onViewCreated(View view) {
         ImageView captureView = view.findViewById(R.id.picture_view);
         captureView.setImageBitmap(mBitmap);
+        ImageView characterBtn= view.findViewById(R.id.character_recognition_btn);
+        characterBtn.setOnClickListener(v -> {}); // 这里添加文字识别的响应事件
     }
 
     @Override
@@ -54,6 +72,7 @@ public class PicturePresenter implements BasePresenter {
 
     }
 
+    //GPUImage测试用的
     public void setTestFilter() {
         GPUImage gpuImage = new GPUImage(mFragment.getContext());
         gpuImage.setImage(mBitmap);
@@ -120,5 +139,39 @@ public class PicturePresenter implements BasePresenter {
         }catch(Exception e){
             e.printStackTrace();
         }
+    }
+
+
+    /**
+     * 这里全部重写！
+     */
+    private void requestForCharacterResult() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl("https://api-cn.faceplusplus.com/imagepp/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+        CharacterApiService request = retrofit.create(CharacterApiService.class);
+
+        File file = new File(CommonUtil.saveBitmapAsFile(mBitmap)); // 照片文件
+        RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
+        MultipartBody.Part body = MultipartBody.Part.createFormData("image_file", file.getName(), requestFile);
+
+        String key = "NBYPc_q698JgKObwz5gPe1EVrzICo0Yu";
+        RequestBody apiKey = RequestBody.create(MediaType.parse("multipart/form-data"), key);
+        String secret = "YSjF6CLV6TYnR5FHa0ghCBNo39Aaodws";
+        RequestBody apiSecret = RequestBody.create(MediaType.parse("multipart/form-data"), secret);
+
+        Call<CharacterResponse> call = request.requestCharacterAnalyse(apiKey, apiSecret, body);
+        call.enqueue(new Callback<CharacterResponse>() {
+            @Override
+            public void onResponse(Call<CharacterResponse> call, retrofit2.Response<CharacterResponse> response) {
+                Log.d("characterResponse", "这里有结果");
+            }
+
+            @Override
+            public void onFailure(Call<CharacterResponse> call, Throwable t) {
+                System.out.println("连接失败");
+            }
+        });
     }
 }

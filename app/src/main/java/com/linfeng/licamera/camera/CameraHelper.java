@@ -53,7 +53,7 @@ import androidx.core.app.ActivityCompat;
 
 import com.linfeng.licamera.util.CameraUtils;
 import com.linfeng.licamera.util.CollectionUtil;
-import com.linfeng.licamera.FrameMode;
+import com.linfeng.licamera.camera.frame.FrameMode;
 import com.linfeng.licamera.LiApplication;
 
 public class CameraHelper {

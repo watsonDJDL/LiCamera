@@ -1,4 +1,4 @@
-package com.linfeng.licamera;
+package com.linfeng.licamera.camera.tab;
 
 public class CameraTabEntity {
     private String mText;

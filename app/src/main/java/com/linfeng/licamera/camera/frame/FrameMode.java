@@ -1,4 +1,4 @@
-package com.linfeng.licamera;
+package com.linfeng.licamera.camera.frame;
 
 public enum FrameMode {
 

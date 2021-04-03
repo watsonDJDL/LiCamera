@@ -1,4 +1,4 @@
-package com.linfeng.licamera;
+package com.linfeng.licamera.picture;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,6 +12,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BaseFragment;
 
 public class PictureFragment extends BaseFragment {

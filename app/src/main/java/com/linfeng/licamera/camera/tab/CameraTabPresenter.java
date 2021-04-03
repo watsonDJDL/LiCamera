@@ -1,18 +1,14 @@
-package com.linfeng.licamera.camera;
+package com.linfeng.licamera.camera.tab;
 
-import android.animation.AnimatorSet;
 import android.animation.ValueAnimator;
 import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatImageView;
-import androidx.interpolator.view.animation.FastOutLinearInInterpolator;
 
-import com.gcssloop.widget.RCRelativeLayout;
-import com.linfeng.licamera.CameraTabEntity;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BasePresenter;
+import com.linfeng.licamera.camera.FocusView;
 
 import java.util.ArrayList;
 import java.util.List;

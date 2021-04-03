@@ -8,7 +8,7 @@ import java.util.List;
 import android.hardware.Camera;
 import android.util.Size;
 
-import com.linfeng.licamera.FrameMode;
+import com.linfeng.licamera.camera.frame.FrameMode;
 
 public class CameraUtils {
 

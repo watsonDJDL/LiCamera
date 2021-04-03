@@ -1,4 +1,4 @@
-package com.linfeng.licamera.camera;
+package com.linfeng.licamera.camera.tab;
 
 /**
  * 相机底部tabId

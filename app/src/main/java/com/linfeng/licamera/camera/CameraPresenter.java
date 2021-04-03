@@ -1,16 +1,17 @@
 package com.linfeng.licamera.camera;
 
 import android.graphics.Bitmap;
-import android.graphics.Camera;
 import android.util.Log;
 import android.view.View;
 
 import androidx.fragment.app.FragmentTransaction;
 
-import com.linfeng.licamera.CameraTabEntity;
+import com.linfeng.licamera.camera.tab.CameraTabEntity;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BasePresenter;
-import com.linfeng.licamera.PictureFragment;
+import com.linfeng.licamera.camera.tab.CameraTabId;
+import com.linfeng.licamera.camera.tab.CameraTabPresenter;
+import com.linfeng.licamera.picture.PictureFragment;
 
 import java.util.List;
 

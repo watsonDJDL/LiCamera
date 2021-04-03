@@ -1,4 +1,4 @@
-package com.linfeng.licamera;
+package com.linfeng.licamera.camera.frame;
 
 import android.view.View;
 import android.view.ViewGroup;
@@ -6,10 +6,11 @@ import android.view.ViewGroup;
 import com.linfeng.licamera.base.BasePresenter;
 import com.linfeng.licamera.camera.CameraFragment;
 import com.linfeng.licamera.camera.CameraHelper;
+import com.linfeng.licamera.camera.frame.FrameMode;
 import com.linfeng.licamera.util.CommonUtil;
 
-import static com.linfeng.licamera.FrameMode.FRAME_3_4;
-import static com.linfeng.licamera.FrameMode.FRAME_9_16;
+import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_3_4;
+import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_9_16;
 
 public class FramePresenter implements BasePresenter {
     private static final float RATIO_9_16 = 9f / 16;

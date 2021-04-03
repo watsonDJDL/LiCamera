@@ -1,4 +1,4 @@
-package com.linfeng.licamera;
+package com.linfeng.licamera.camera.tab;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,8 +9,10 @@ import android.widget.Button;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.linfeng.licamera.R;
 import com.linfeng.licamera.camera.CameraPresenter;
-import com.linfeng.licamera.camera.CameraTabPresenter;
+import com.linfeng.licamera.camera.tab.CameraTabEntity;
+import com.linfeng.licamera.camera.tab.CameraTabPresenter;
 
 import java.util.List;
 

@@ -2,12 +2,18 @@ package com.linfeng.licamera.util;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.util.DisplayMetrics;
 import android.view.WindowManager;
 import androidx.annotation.DimenRes;
 import androidx.annotation.StringRes;
 
 import com.linfeng.licamera.LiApplication;
+
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class CommonUtil {
   private static int sScreenLongAxis = 0;
@@ -80,6 +86,20 @@ public class CommonUtil {
 
   public static Context context() {
     return LiApplication.getContext();
+  }
+
+  public static String saveBitmapAsFile(Bitmap bitmap) {
+    String storePath = context().getExternalCacheDir().toString() + File.separator + "cache.jpg";
+    File file = new File(storePath);//将要保存图片的路径
+    try {
+      BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+      bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+      bos.flush();
+      bos.close();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return file.getPath();
   }
 
 }

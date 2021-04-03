@@ -6,7 +6,6 @@ import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -15,12 +14,12 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.linfeng.licamera.CameraTabAdapter;
+import com.linfeng.licamera.camera.tab.CameraTabAdapter;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BaseFragment;
-import com.linfeng.licamera.FramePresenter;
+import com.linfeng.licamera.camera.frame.FramePresenter;
 
-import static com.linfeng.licamera.FrameMode.FRAME_9_16;
+import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_9_16;
 
 public class CameraFragment extends BaseFragment {
   private static final String TAG = "CameraFragment";
