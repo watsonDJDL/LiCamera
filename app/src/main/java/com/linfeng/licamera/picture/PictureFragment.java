@@ -3,6 +3,7 @@ package com.linfeng.licamera.picture;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.FileUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,12 @@ import androidx.annotation.Nullable;
 
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BaseFragment;
+import com.linfeng.licamera.imageEditor.EditImageActivity;
+import com.linfeng.licamera.util.FileUtil;
+
+import java.io.File;
+
+import static com.linfeng.licamera.MainActivity.ACTION_REQUEST_EDIT_IMAGE;
 
 public class PictureFragment extends BaseFragment {
     private PicturePresenter mPicturePresenter;
@@ -23,14 +30,9 @@ public class PictureFragment extends BaseFragment {
     }
 
     @Override
-    public void onAttach(@NonNull Context context) {
-        super.onAttach(context);
-        mPicturePresenter.setTestFilter();
-    }
-
-    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPicturePresenter.onCreate();
     }
 
     @Override
@@ -53,7 +55,7 @@ public class PictureFragment extends BaseFragment {
     }
 
     private void onSelectButtonClick() {
-        mPicturePresenter.saveImage();
+        mPicturePresenter.onSelectBtnClick();
     }
 
     public void showSaveImageSuccessfully() {

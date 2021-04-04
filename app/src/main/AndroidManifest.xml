@@ -13,16 +13,24 @@
     android:icon="@mipmap/ic_launcher"
     android:label="@string/app_name"
     android:roundIcon="@mipmap/ic_launcher_round"
-    android:supportsRtl="true">
+    android:supportsRtl="true"
+    android:theme="@style/Theme.LiCamera.NoActionBar">
     <activity
       android:name=".MainActivity"
-      android:label="@string/app_name"
-      android:theme="@style/Theme.LiCamera.NoActionBar">
+      android:label="@string/app_name">
+
       <intent-filter>
         <action android:name="android.intent.action.MAIN" />
 
         <category android:name="android.intent.category.LAUNCHER" />
       </intent-filter>
+    </activity>
+
+    <!--图片编辑Activity-->
+    <activity
+        android:name=".imageEditor.EditImageActivity"
+        android:screenOrientation="portrait"
+        android:windowSoftInputMode="adjustPan">
     </activity>
   </application>
 

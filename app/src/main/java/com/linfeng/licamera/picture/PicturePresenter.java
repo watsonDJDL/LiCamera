@@ -15,10 +15,13 @@ import androidx.core.app.ActivityCompat;
 
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BasePresenter;
+import com.linfeng.licamera.imageEditor.EditImageActivity;
 import com.linfeng.licamera.picture.PictureFragment;
 import com.linfeng.licamera.service.CharacterApiService;
 import com.linfeng.licamera.service.CharacterResponse;
+import com.linfeng.licamera.util.BitmapUtils;
 import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.util.FileUtil;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -37,9 +40,12 @@ import retrofit2.Callback;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.linfeng.licamera.MainActivity.ACTION_REQUEST_EDIT_IMAGE;
+
 public class PicturePresenter implements BasePresenter {
-    PictureFragment mFragment;
-    Bitmap mBitmap;
+    private PictureFragment mFragment;
+    public Bitmap mBitmap;
+    private String path;
     public PicturePresenter(PictureFragment pictureFragment, Bitmap bitmap) {
         mFragment = pictureFragment;
         mBitmap = bitmap;
@@ -51,7 +57,8 @@ public class PicturePresenter implements BasePresenter {
 
     @Override
     public void onCreate() {
-
+        path = mFragment.getContext().getExternalCacheDir().toString() + File.separator + "cache.jpg";
+        BitmapUtils.saveBitmap(mBitmap, path);
     }
 
     @Override
@@ -72,13 +79,12 @@ public class PicturePresenter implements BasePresenter {
 
     }
 
-    //GPUImage测试用的
-    public void setTestFilter() {
-        GPUImage gpuImage = new GPUImage(mFragment.getContext());
-        gpuImage.setImage(mBitmap);
-        gpuImage.setFilter(new GPUImageGrayscaleFilter());
-        mBitmap = gpuImage.getBitmapWithFilterApplied();
+    public void onSelectBtnClick() {
+        File outputFile = FileUtil.genEditFile();
+        EditImageActivity.start(mFragment.getActivity(),path,outputFile.getAbsolutePath(),ACTION_REQUEST_EDIT_IMAGE);
+        //saveImage();
     }
+
 
     public void saveImage() {
         verifyStoragePermissions(mFragment.getActivity());
@@ -152,7 +158,8 @@ public class PicturePresenter implements BasePresenter {
                 .build();
         CharacterApiService request = retrofit.create(CharacterApiService.class);
 
-        File file = new File(CommonUtil.saveBitmapAsFile(mBitmap)); // 照片文件
+        BitmapUtils.saveBitmap(mBitmap, path);
+        File file = new File(path); // 照片文件
         RequestBody requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), file);
         MultipartBody.Part body = MultipartBody.Part.createFormData("image_file", file.getName(), requestFile);
 

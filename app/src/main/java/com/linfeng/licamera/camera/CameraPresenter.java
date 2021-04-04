@@ -76,16 +76,19 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
       return;
     }
     int status = mCameraTabPresenter.getCameraButtonStatus();
-    if (status == CameraTabId.TAKE_PICTURE) {
-      mCameraHelper.takePicture();
-    } else if (status == CameraTabId.RECORD) {
-      if (mIsRecording) {
-        stopRecord();
-        mIsRecording = false;
-      } else {
-        startRecord();
-        mIsRecording = true;
-      }
+    switch(status) {
+      case CameraTabId.UNKNOWN:
+      case CameraTabId.TAKE_PICTURE:
+          mCameraHelper.takePicture();
+          break;
+      case CameraTabId.RECORD:
+        if (mIsRecording) {
+          stopRecord();
+          mIsRecording = false;
+        } else {
+          startRecord();
+          mIsRecording = true;
+        }
     }
   }
 
@@ -115,7 +118,14 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   }
 
   private void startPictureFragment(Bitmap bitmap) {
-    FragmentTransaction transaction = mFragment.getParentFragmentManager().beginTransaction();
+    FragmentTransaction transaction = mFragment.getParentFragmentManager()
+            .beginTransaction()
+            .setCustomAnimations(
+            R.anim.slide_right_in,
+            R.anim.slide_left_out,
+            R.anim.slide_left_in,
+            R.anim.slide_right_out);
+
     PictureFragment pictureFragment = new PictureFragment(bitmap);
     transaction.replace(mFragment.getId(), pictureFragment);
     transaction.addToBackStack(null);
