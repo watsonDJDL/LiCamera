@@ -79,5 +79,5 @@ public class StickerTypeAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             // System.out.println("data---->" + data);
             mStickerFragment.swipToStickerDetails(data);
         }
-    }// end inner class
+    }
 }
