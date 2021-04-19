@@ -32,6 +32,18 @@
         android:screenOrientation="portrait"
         android:windowSoftInputMode="adjustPan">
     </activity>
+
+    <activity
+        android:configChanges="keyboard|orientation|screenSize"
+        android:name=".videoEditor.TrimVideoActivity"
+        android:hardwareAccelerated="true"
+        android:screenOrientation="portrait"/>
+    <activity
+        android:configChanges="keyboard|orientation|screenSize"
+        android:name=".videoEditor.VideoPreviewActivity"
+        android:hardwareAccelerated="true"
+        android:screenOrientation="portrait"/>
+
   </application>
 
 </manifest>

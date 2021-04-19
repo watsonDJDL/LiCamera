@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -13,6 +14,7 @@ import com.linfeng.licamera.R;
 import com.linfeng.licamera.camera.CameraPresenter;
 import com.linfeng.licamera.camera.tab.CameraTabEntity;
 import com.linfeng.licamera.camera.tab.CameraTabPresenter;
+import com.linfeng.licamera.imageEditor.view.TextStickerView;
 
 import java.util.List;
 
@@ -21,10 +23,10 @@ public class CameraTabAdapter extends RecyclerView.Adapter {
     private List<CameraTabEntity> mList;
     private CameraTabPresenter mPresenter;
 
-    public CameraTabAdapter(Context context, CameraPresenter cameraPresenter) {
+    public CameraTabAdapter(Context context, CameraTabPresenter cameraTabPresenter) {
         mContext = context;
-        mList = cameraPresenter.getCameraTabList();
-        mPresenter = cameraPresenter.getCameraTabPresenter();
+        mList = cameraTabPresenter.getCameraTabList();
+        mPresenter = cameraTabPresenter;
     }
 
     @NonNull
@@ -37,8 +39,13 @@ public class CameraTabAdapter extends RecyclerView.Adapter {
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         CameraTabEntity entity = mList.get(position);
-        ((CameraTabViewHolder)holder).button.setText(entity.getText());
-        ((CameraTabViewHolder)holder).button.setOnClickListener(v -> mPresenter.onCameraTabChanged(entity.getTabId()));
+        ((CameraTabViewHolder)holder).textView.setText(entity.getText());
+        ((CameraTabViewHolder)holder).textView.setSelected(false);
+        ((CameraTabViewHolder)holder).textView.setOnClickListener(v -> {
+            ((CameraTabViewHolder)holder).textView.setSelected(true);
+            mPresenter.onCameraTabClick(position, entity.getTabId());
+            notifyItemChanged(position, false);
+        });
     }
 
     @Override
@@ -47,11 +54,11 @@ public class CameraTabAdapter extends RecyclerView.Adapter {
     }
 
     private class CameraTabViewHolder extends RecyclerView.ViewHolder {
-        public Button button;
+        public TextView textView;
 
         public CameraTabViewHolder(@NonNull View itemView) {
             super(itemView);
-            button = (Button) itemView.findViewById(R.id.camera_tab_item_text);
+            textView = (TextView) itemView.findViewById(R.id.camera_tab_item_text);
         }
     }
 }

@@ -55,6 +55,8 @@ import com.linfeng.licamera.util.CameraUtils;
 import com.linfeng.licamera.util.CollectionUtil;
 import com.linfeng.licamera.camera.frame.FrameMode;
 import com.linfeng.licamera.LiApplication;
+import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.videoEditor.TrimVideoActivity;
 
 public class CameraHelper {
 
@@ -332,7 +334,7 @@ public class CameraHelper {
   /*
    *创建视频存储文件夹 录制好的视频存储在手机外部存储中 以录像时间+mp4格式命名
    * */
-  private String getOutputMediaFile() {
+  public String getOutputMediaFile() {
     Log.d(TAG, "获取视频存储的位置 ");
     String mediaPath = getOutputFile();
     if (mediaPath != null) {

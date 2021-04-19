@@ -25,4 +25,11 @@
   <color name="materialcolorpicker__dialogcolor">#009688</color>
   <color name="hint_foreground_material_light">#00000000</color>
   <color name="hint_foreground_material_dark">#00000000</color>
+
+
+  <color name="filter_category_greenish_dummy">#ffb1c0c2</color>
+  <color name="filter_category_greenish_normal">#ff7bc4c5</color>
+
+  <color name="alpha_white_70">#4Dffffff</color>
+  <color name="grey_white">#cccccc</color>
 </resources>

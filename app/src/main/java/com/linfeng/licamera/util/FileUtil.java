@@ -13,6 +13,19 @@ import static com.linfeng.licamera.util.CommonUtil.context;
 
 public class FileUtil {
     public static final String FOLDER_NAME = "liEdit";
+    private static final File parentPath = Environment.getExternalStorageDirectory();
+    private static String storagePath = "";
+
+    public static String getBasePath() {
+        if (storagePath.equals("")) {
+            storagePath = parentPath.getAbsolutePath() + File.separator + "LiCamera";
+            File f = new File(storagePath);
+            if (!f.exists()) {
+                f.mkdir();
+            }
+        }
+        return storagePath;
+    }
     public static boolean checkFileExist(final String path) {
         if (TextUtils.isEmpty(path))
             return false;

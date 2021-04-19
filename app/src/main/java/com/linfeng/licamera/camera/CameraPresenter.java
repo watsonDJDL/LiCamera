@@ -12,6 +12,8 @@ import com.linfeng.licamera.base.BasePresenter;
 import com.linfeng.licamera.camera.tab.CameraTabId;
 import com.linfeng.licamera.camera.tab.CameraTabPresenter;
 import com.linfeng.licamera.picture.PictureFragment;
+import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.videoEditor.TrimVideoActivity;
 
 import java.util.List;
 
@@ -33,7 +35,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
 
   @Override
   public void onCreate() {
-    mCameraTabPresenter = new CameraTabPresenter();
+    mCameraTabPresenter = new CameraTabPresenter(mFragment);
     mCameraTabPresenter.onCreate();
   }
 
@@ -63,7 +65,6 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
     mCameraHelper.removeOnImageAvailableListener(this);
     mCameraTabPresenter.onDestroyView();
   }
-
 
   public void onCameraSwitch() {
     if (mCameraHelper != null) {
@@ -98,6 +99,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
 
   public void stopRecord() {
       mCameraHelper.stopRecord();
+      TrimVideoActivity.startActivity(mFragment.getContext(), mCameraHelper.getOutputMediaFile());
   }
 
   private void setCameraFocusHandler() {

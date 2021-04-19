@@ -18,6 +18,7 @@ import com.linfeng.licamera.camera.tab.CameraTabAdapter;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BaseFragment;
 import com.linfeng.licamera.camera.frame.FramePresenter;
+import com.linfeng.licamera.imageEditor.view.image.easing.Linear;
 
 import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_9_16;
 
@@ -59,8 +60,6 @@ public class CameraFragment extends BaseFragment {
     TextureView textureView = mCameraViewGroup.getTextureView();
     assert CameraHelper.getInstance() != null;
     CameraHelper.getInstance().setTextureView(textureView);
-
-    initCameraTabView(view);
 
     mCameraBtn = view.findViewById(R.id.camera_btn);
     mSwitchBtn = view .findViewById(R.id.camera_switch_btn);
@@ -107,14 +106,5 @@ public class CameraFragment extends BaseFragment {
     if (mFrameSwitchBtn != null) {
       mFrameSwitchBtn.setOnClickListener(v -> mFramePresenter.onFrameBtnClick());
     }
-  }
-
-  private void initCameraTabView(View view) {
-    mCameraTabRecyclerView = view.findViewById(R.id.camera_tab_recyclerView);
-    CameraTabAdapter adapter =
-            new CameraTabAdapter(getContext(), mCameraPresenter);
-    mCameraTabRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-    mCameraTabRecyclerView.setAdapter(adapter);
-    mCameraTabRecyclerView.bringToFront();
   }
 }

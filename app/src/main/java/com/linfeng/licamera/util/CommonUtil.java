@@ -1,5 +1,6 @@
 package com.linfeng.licamera.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
@@ -43,6 +44,16 @@ public class CommonUtil {
       sScreenLongAxis = Math.max(displayMetrics.widthPixels, displayMetrics.heightPixels);
     }
     return sScreenLongAxis;
+  }
+
+  public static int getScreenWidth() {
+    DisplayMetrics dm = context().getResources().getDisplayMetrics();
+    return dm.widthPixels;
+  }
+
+  public static int getScreenHeight() {
+    DisplayMetrics dm = context().getResources().getDisplayMetrics();
+    return dm.heightPixels;
   }
 
   public static Resources res() {
