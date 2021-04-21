@@ -31,7 +31,9 @@ public class CameraViewGroup extends FrameLayout {
     addView(mCameraView, LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
   }
 
-
+  public void bindPresenter(CameraPresenter presenter) {
+    mCameraView.bindPresenter(presenter);
+  }
 
   //应该由外部来设置这里的CameraFocusHandler
   public void setCameraFocusHandler(CameraView.CameraFocusHandler h) {

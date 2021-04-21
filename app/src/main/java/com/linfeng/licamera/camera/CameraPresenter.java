@@ -26,6 +26,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   private CameraHelper mCameraHelper;
   private CameraFragment mFragment;
   private boolean mIsRecording;
+  private float mZoom = 1f;
 
   private CameraTabPresenter mCameraTabPresenter;//后面单独抽出来做addPresenter
 
@@ -91,6 +92,17 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
           mIsRecording = true;
         }
     }
+  }
+
+  public void handleZoom(boolean isZoomOut) {
+    CameraHelper helper = CameraHelper.getInstance();
+    float maxZoom  = helper.getMaxZoom();
+    if (isZoomOut && mZoom < maxZoom) {
+      mZoom++;
+    } else if(mZoom > 0){
+      mZoom--;
+    }
+    helper.applyZoom(mZoom / 10);
   }
 
   public void startRecord() {

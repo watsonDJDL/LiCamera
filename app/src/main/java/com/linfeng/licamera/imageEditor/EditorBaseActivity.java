@@ -27,7 +27,7 @@ public class EditorBaseActivity extends AppCompatActivity {
     protected void checkInitImageLoader() {
         if (!ImageLoader.getInstance().isInited()) {
             initImageLoader();
-        }//end if
+        }
     }
 
     /**

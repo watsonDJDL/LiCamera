@@ -58,6 +58,7 @@ public class CameraFragment extends BaseFragment {
 
     mCameraViewGroup = view.findViewById(R.id.camera_view);
     TextureView textureView = mCameraViewGroup.getTextureView();
+    mCameraViewGroup.bindPresenter(mCameraPresenter);
     assert CameraHelper.getInstance() != null;
     CameraHelper.getInstance().setTextureView(textureView);
 

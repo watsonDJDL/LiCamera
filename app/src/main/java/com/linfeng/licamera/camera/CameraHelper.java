@@ -20,6 +20,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.ImageFormat;
 import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
@@ -28,6 +29,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
 import android.hardware.camera2.CaptureRequest;
+import android.hardware.camera2.params.MeteringRectangle;
 import android.hardware.camera2.params.OutputConfiguration;
 import android.hardware.camera2.params.SessionConfiguration;
 import android.hardware.camera2.params.StreamConfigurationMap;
@@ -76,8 +78,10 @@ public class CameraHelper {
   private Bitmap mCurrentCaptureBitMap;
   private Handler childHandler, mainHandler;
   private List<OnImageCaptureListener> mImageAvailableListeners = new ArrayList<>();
+  CaptureRequest.Builder mPreviewBuilder;
   private int mWidth;
   private int mHeight;
+  private float mZoomValue;
   private static final SparseIntArray ORIENTATIONS = new SparseIntArray();
   ///为了使照片竖直显示
   static {
@@ -169,8 +173,8 @@ public class CameraHelper {
       //mTextureView.setLayoutParams(textureLayoutParams);
       texture.setDefaultBufferSize(previewSize.getWidth(), previewSize.getHeight());
       Surface surface = new Surface(texture);
-      CaptureRequest.Builder  builder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
-      builder.addTarget(surface);
+      mPreviewBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
+      mPreviewBuilder.addTarget(surface);
       mCameraDevice.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface()),
               new CameraCaptureSession.StateCallback() {
                 @Override
@@ -181,7 +185,8 @@ public class CameraHelper {
                   }
                   mCaptureSession = session;
                   try {
-                    mCaptureSession.setRepeatingRequest(builder.build(), mSessionCaptureCallback, childHandler);
+                    mPreviewBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,CaptureRequest.CONTROL_AF_TRIGGER_IDLE);
+                    mCaptureSession.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, childHandler);
                   } catch (CameraAccessException e) {
                     e.printStackTrace();
                   }
@@ -195,6 +200,98 @@ public class CameraHelper {
     } catch (CameraAccessException e) {
       Log.e(TAG, "CreateCameraPreview error ", e);
     }
+  }
+
+  public void startControlAFRequest(Rect rec) {
+
+    try {
+      CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
+
+      //怎么拿到预览的Rect
+      CoordinateTransformer transformer = new CoordinateTransformer(characteristics, new RectF(0, 0, mWidth, mHeight));
+      MeteringRectangle rect = new MeteringRectangle(toFocusRect(transformer.toCameraSpace(new RectF(rec))), 1000);
+      MeteringRectangle[] rectangle = new MeteringRectangle[]{rect};
+      // 对焦模式必须设置为AUTO
+      mPreviewBuilder.set(CaptureRequest.CONTROL_AF_MODE,CaptureRequest.CONTROL_AF_MODE_AUTO);
+      //AE
+      mPreviewBuilder.set(CaptureRequest.CONTROL_AE_REGIONS,rectangle);
+      //AF 此处AF和AE用的同一个rect, 实际AE矩形面积比AF稍大, 这样测光效果更好
+      mPreviewBuilder.set(CaptureRequest.CONTROL_AF_REGIONS,rectangle);
+      // AE/AF区域设置通过setRepeatingRequest不断发请求
+      mCaptureSession.setRepeatingRequest(mPreviewBuilder.build(), null, childHandler);
+      //触发对焦
+      mPreviewBuilder.set(CaptureRequest.CONTROL_AF_TRIGGER,CaptureRequest.CONTROL_AF_TRIGGER_START);
+      //触发对焦通过capture发送请求, 因为用户点击屏幕后只需触发一次对焦
+      mCaptureSession.capture(mPreviewBuilder.build(), mSessionCaptureCallback, childHandler);
+    } catch(CameraAccessException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private Rect toFocusRect(RectF rectF) {
+    Rect rect = new Rect();
+    rect.left = Math.round(rectF.left);
+    rect.top = Math.round(rectF.top);
+    rect.right = Math.round(rectF.right);
+    rect.bottom = Math.round(rectF.bottom);
+    return rect;
+  }
+
+  public void applyZoom(float zoom){
+    float old = mZoomValue;
+    mZoomValue = zoom;
+    try {
+      CameraCharacteristics  characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
+      if(characteristics != null){
+        float maxZoom = characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
+        // converting 0.0f-1.0f zoom scale to the actual camera digital zoom scale
+        // (which will be for example, 1.0-10.0)
+        float calculatedZoom = (mZoomValue * (maxZoom - 1.0f)) + 1.0f;
+        Rect newRect = getZoomRect(calculatedZoom, maxZoom);
+        mPreviewBuilder.set(CaptureRequest.SCALER_CROP_REGION, newRect);
+        try {
+          mCaptureSession.setRepeatingRequest(mPreviewBuilder.build(), mSessionCaptureCallback, childHandler);
+        } catch (CameraAccessException e) {
+          e.printStackTrace();
+        }
+      }
+    } catch (CameraAccessException e) {
+      e.printStackTrace();
+    }
+  }
+
+  /**
+   * 获取缩放矩形
+   **/
+  private Rect getZoomRect(float zoomLevel, float maxDigitalZoom) {
+    Rect activeRect = new Rect();
+    try {
+      CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
+      activeRect = characteristics.get(CameraCharacteristics.SENSOR_INFO_ACTIVE_ARRAY_SIZE);
+    } catch(CameraAccessException e) {
+      e.printStackTrace();
+    }
+    int minW = (int) (activeRect.width() / maxDigitalZoom);
+    int minH = (int) (activeRect.height() / maxDigitalZoom);
+    int difW = activeRect.width() - minW;
+    int difH = activeRect.height() - minH;
+
+    // When zoom is 1, we want to return new Rect(0, 0, width, height).
+    // When zoom is maxZoom, we want to return a centered rect with minW and minH
+    int cropW = (int) (difW * (zoomLevel - 1) / (maxDigitalZoom - 1) / 2F);
+    int cropH = (int) (difH * (zoomLevel - 1) / (maxDigitalZoom - 1) / 2F);
+    return new Rect(cropW, cropH, activeRect.width() - cropW,
+            activeRect.height() - cropH);
+  }
+
+  public float getMaxZoom() {
+    try {
+      CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
+      return characteristics.get(CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
+    } catch(CameraAccessException e) {
+      e.printStackTrace();
+    }
+    return 1f;
   }
 
   //创建录制时相关的方法
@@ -515,6 +612,12 @@ public class CameraHelper {
       int rotation = mCameraActivity.getWindowManager().getDefaultDisplay().getRotation();
       // 根据设备方向计算设置照片的方向
       captureRequestBuilder.set(CaptureRequest.JPEG_ORIENTATION, ORIENTATIONS.get(rotation));
+      if (mZoomValue > 0) {
+        float maxZoom = getMaxZoom();
+        float calculatedZoom = (mZoomValue * (maxZoom - 1.0f)) + 1.0f;
+        Rect newRect = getZoomRect(calculatedZoom, maxZoom);
+        captureRequestBuilder.set(CaptureRequest.SCALER_CROP_REGION, newRect);
+      }
       //拍照
       CaptureRequest mCaptureRequest = captureRequestBuilder.build();
       mCaptureSession.capture(mCaptureRequest, null, childHandler);
@@ -565,5 +668,13 @@ public class CameraHelper {
     mHeight = CameraUtils.getCameraViewHeight(frameMode,mWidth);
     createCameraPreview();
 
+  }
+
+  public int getWidth() {
+    return mWidth;
+  }
+
+  public int getHeight() {
+    return mHeight;
   }
 }

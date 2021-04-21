@@ -3,7 +3,10 @@ package com.linfeng.licamera.camera;
 import android.content.Context;
 import android.graphics.PointF;
 import android.graphics.Rect;
+import android.hardware.camera2.params.MeteringRectangle;
 import android.util.AttributeSet;
+import android.util.FloatMath;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -15,8 +18,10 @@ import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.internal.functions.Functions;
 
 public class CameraView extends FrameLayout {
+  private static final String TAG = "CameraView";
   private final PointF mTouchPoint = new PointF();
   private final PointF mTouchUpPoint = new PointF();
+  private CameraPresenter mCameraPresenter;
   public CameraFocusHandler mHandler;
   private FocusView mFocusView;
 
@@ -48,10 +53,15 @@ public class CameraView extends FrameLayout {
     setOnClickListener(this::handleClick);
   }
 
+  public void bindPresenter(CameraPresenter presenter) {
+    mCameraPresenter = presenter;
+  }
+
   private void handleClick(View view) {
     mFocusListener.onClick(view);
   }
 
+  private float oldDist = 1f;
   @Override
   public boolean onTouchEvent(MotionEvent event) {
     if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
@@ -60,8 +70,40 @@ public class CameraView extends FrameLayout {
     if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
       mTouchUpPoint.set(event.getX(), event.getY());
     }
+    if(event.getPointerCount() > 1) {
+      switch (event.getAction() & MotionEvent.ACTION_MASK) {
+        case MotionEvent.ACTION_POINTER_DOWN:
+          oldDist = getFingerSpacing(event);
+          break;
+        case MotionEvent.ACTION_MOVE:
+          float newDist = getFingerSpacing(event);
+          if (newDist > oldDist) {
+            handleZoom(true);
+          } else if (newDist < oldDist) {
+            handleZoom(false);
+          }
+          Log.d(TAG, "oldDist   newDist:  " + oldDist + "   " + newDist);
+          oldDist = newDist;
+          break;
+      }
+    }
     return super.onTouchEvent(event);
   }
+
+  private void handleZoom(boolean zoomOut) {
+    if (mCameraPresenter != null) {
+      mCameraPresenter.handleZoom(zoomOut);
+    }
+  }
+
+  /** Determine the space between the first two fingers */
+  private float getFingerSpacing(MotionEvent event) {
+    // ...
+    float x = event.getX(0) - event.getX(1);
+    float y = event.getY(0) - event.getY(1);
+    return (float) Math.sqrt(x * x + y * y);
+  }
+
 
   private void computeFocusArea(float x, float y) {
     int width = getWidth(), height = getHeight();
@@ -105,6 +147,7 @@ public class CameraView extends FrameLayout {
         // 2000,
         // (focusR.right + 1000) * width / 2000, (focusR.bottom + 1000) * height / 2000);
         mFocusView.startFocus(r);
+        CameraHelper.getInstance().startControlAFRequest(r);
         /*if (mAECompensationListener != null) {
           mAECompensationListener.onFocus();
         }*/
@@ -121,7 +164,6 @@ public class CameraView extends FrameLayout {
   }
 
   public interface CameraFocusHandler {
-
     /**
      * Set camera focus limit with [-1000, -1000, 1000, 1000]
      *

@@ -114,7 +114,7 @@ public class PaintFragment extends BaseEditFragment implements View.OnClickListe
             setStokeWidth();
         } else if (v == mEraserView) {
             toggleEraserView();
-        }//end if
+        }
     }
 
     /**

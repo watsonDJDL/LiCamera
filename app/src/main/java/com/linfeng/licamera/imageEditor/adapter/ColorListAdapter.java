@@ -38,7 +38,7 @@ public class ColorListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             super(itemView);
             this.colorPanelView = itemView.findViewById(R.id.color_panel_view);
         }
-    }// end inner class
+    }
 
     public class MoreViewHolder extends RecyclerView.ViewHolder {
         View moreBtn;
@@ -47,7 +47,7 @@ public class ColorListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             this.moreBtn = itemView.findViewById(R.id.color_panel_more);
         }
 
-    }//end inner class
+    }
 
     @Override
     public int getItemCount() {
