@@ -14,11 +14,17 @@ import android.view.View;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.util.PaintUtil;
 
+/**
+ * 裁剪图片View
+ */
 public class CropImageView extends View {
+    private static final int LEFT_TOP_POINT = 1;
+    private static final int RIGHT_TOP_POINT = 2;
+    private static final int LEFT_BOTTOM_POINT = 3;
+    private static final int RIGHT_BOTTOM_POINT = 4;
     private static int STATUS_IDLE = 1;// 空闲状态
     private static int STATUS_MOVE = 2;// 移动状态
     private static int STATUS_SCALE = 3;// 缩放状态
-
     private int CIRCLE_WIDTH = 46;
     private Context mContext;
     private float oldx, oldy;
@@ -28,9 +34,7 @@ public class CropImageView extends View {
     private RectF backLeftRect = new RectF();// 左
     private RectF backRightRect = new RectF();// 右
     private RectF backDownRect = new RectF();// 下
-
     private RectF cropRect = new RectF();// 剪切矩形
-
     private Paint mBackgroundPaint;// 背景Paint
     private Bitmap circleBit;
     private Rect circleRect = new Rect();
@@ -38,10 +42,8 @@ public class CropImageView extends View {
     private RectF rightTopCircleRect;
     private RectF leftBottomRect;
     private RectF rightBottomRect;
-
     private RectF imageRect = new RectF();// 存贮图片位置信息
     private RectF tempRect = new RectF();// 临时存贮矩形数据
-
     private float ratio = -1;// 剪裁缩放比率
 
     public CropImageView(Context context) {
@@ -61,9 +63,8 @@ public class CropImageView extends View {
 
     private void init(Context context) {
         mContext = context;
-        mBackgroundPaint = PaintUtil.newBackgroundPaint(context);
-        circleBit = BitmapFactory.decodeResource(context.getResources(),
-                R.drawable.sticker_rotate);
+        mBackgroundPaint = PaintUtil.newBackgroundPaint();
+        circleBit = BitmapFactory.decodeResource(context.getResources(), R.drawable.sticker_rotate);
         circleRect.set(0, 0, circleBit.getWidth(), circleBit.getHeight());
         leftTopCircleRect = new RectF(0, 0, CIRCLE_WIDTH, CIRCLE_WIDTH);
         rightTopCircleRect = new RectF(leftTopCircleRect);
@@ -73,13 +74,10 @@ public class CropImageView extends View {
 
     /**
      * 重置剪裁面
-     *
-     * @param rect
      */
     public void setCropRect(RectF rect) {
         if(rect == null)
             return;
-
         imageRect.set(rect);
         cropRect.set(rect);
         scaleRect(cropRect, 0.5f);
@@ -92,20 +90,16 @@ public class CropImageView extends View {
             setCropRect(rect);
             return;
         }
-
         imageRect.set(rect);
         cropRect.set(rect);
-        // setCropRect(rect);
-        // 调整Rect
-
         float h, w;
-        if (cropRect.width() >= cropRect.height()) {// w>=h
+        if (cropRect.width() >= cropRect.height()) {
             h = cropRect.height() / 2;
             w = this.ratio * h;
-        } else {// w<h
+        } else {
             w = rect.width() / 2;
             h = w / this.ratio;
-        }// end if
+        }
         float scaleX = w / cropRect.width();
         float scaleY = h / cropRect.height();
         scaleRect(cropRect, scaleX, scaleY);
@@ -115,12 +109,10 @@ public class CropImageView extends View {
     @Override
     public void draw(Canvas canvas) {
         super.draw(canvas);
-
         int w = getWidth();
         int h = getHeight();
         if (w <= 0 || h <= 0)
             return;
-
         // 绘制黑色背景
         backUpRect.set(0, 0, w, cropRect.top);
         backLeftRect.set(0, cropRect.top, cropRect.left, cropRect.bottom);
@@ -160,7 +152,7 @@ public class CropImageView extends View {
         float y = event.getY();
         switch (action & MotionEvent.ACTION_MASK) {
             case MotionEvent.ACTION_DOWN:
-                int selectCircle = isSeletedControllerCircle(x, y);
+                int selectCircle = isSelectedControllerCircle(x, y);
                 if (selectCircle > 0) {// 选择控制点
                     ret = true;
                     selectedControllerCicle = selectCircle;// 记录选中控制点编号
@@ -168,16 +160,12 @@ public class CropImageView extends View {
                 } else if (cropRect.contains(x, y)) {// 选择缩放框内部
                     ret = true;
                     status = STATUS_MOVE;// 进入移动状态
-                } else {// 没有选择
-
-                }// end if
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
-                if (status == STATUS_SCALE) {// 缩放控制
-                    // System.out.println("缩放控制");
+                if (status == STATUS_SCALE) {// 缩放
                     scaleCropController(x, y);
-                } else if (status == STATUS_MOVE) {// 移动控制
-                    // System.out.println("移动控制");
+                } else if (status == STATUS_MOVE) {// 移动
                     translateCrop(x - oldx, y - oldy);
                 }
                 break;
@@ -185,20 +173,14 @@ public class CropImageView extends View {
             case MotionEvent.ACTION_UP:
                 status = STATUS_IDLE;// 回归空闲状态
                 break;
-        }// end switch
-
-        // 记录上一次动作点
+        }
         oldx = x;
         oldy = y;
-
         return ret;
     }
 
     /**
      * 移动剪切框
-     *
-     * @param dx
-     * @param dy
      */
     private void translateCrop(float dx, float dy) {
         tempRect.set(cropRect);// 存贮原有数据，以便还原
@@ -227,12 +209,8 @@ public class CropImageView extends View {
 
     /**
      * 移动矩形
-     *
-     * @param rect
-     * @param dx
-     * @param dy
      */
-    private static final void translateRect(RectF rect, float dx, float dy) {
+    private static void translateRect(RectF rect, float dx, float dy) {
         rect.left += dx;
         rect.right += dx;
         rect.top += dy;
@@ -241,12 +219,9 @@ public class CropImageView extends View {
 
     /**
      * 操作控制点 控制缩放
-     *
-     * @param x
-     * @param y
      */
     private void scaleCropController(float x, float y) {
-        tempRect.set(cropRect);// 存贮原有数据，以便还原
+        tempRect.set(cropRect);
         switch (selectedControllerCicle) {
             case 1:// 左上角控制点
                 cropRect.left = x;
@@ -264,44 +239,25 @@ public class CropImageView extends View {
                 cropRect.right = x;
                 cropRect.bottom = y;
                 break;
-        }// end switch
-
+        }
         if (ratio < 0) {// 任意缩放比
             // 边界条件检测
             validateCropRect();
             invalidate();
-        } else {
-            // 更新剪切矩形长宽
-            // 确定不变点
-            switch (selectedControllerCicle) {
-                case 1:// 左上角控制点
-                case 2:// 右上角控制点
-                    cropRect.bottom = (cropRect.right - cropRect.left) / this.ratio
-                            + cropRect.top;
-                    break;
-                case 3:// 左下角控制点
-                case 4:// 右下角控制点
-                    cropRect.top = cropRect.bottom
-                            - (cropRect.right - cropRect.left) / this.ratio;
-                    break;
-            }// end switch
-
-            // validateCropRect();
-            if (cropRect.left < imageRect.left
+        } else if (cropRect.left < imageRect.left
                     || cropRect.right > imageRect.right
                     || cropRect.top < imageRect.top
                     || cropRect.bottom > imageRect.bottom
                     || cropRect.width() < CIRCLE_WIDTH
                     || cropRect.height() < CIRCLE_WIDTH) {
                 cropRect.set(tempRect);
-            }
+
             invalidate();
-        }// end if
+        }
     }
 
     /**
      * 边界条件检测
-     *
      */
     private void validateCropRect() {
         if (cropRect.width() < CIRCLE_WIDTH) {
@@ -328,22 +284,16 @@ public class CropImageView extends View {
 
     /**
      * 是否选中控制点
-     *
-     * -1为没有
-     *
-     * @param x
-     * @param y
-     * @return
      */
-    private int isSeletedControllerCircle(float x, float y) {
+    private int isSelectedControllerCircle(float x, float y) {
         if (leftTopCircleRect.contains(x, y))// 选中左上角
-            return 1;
+            return LEFT_TOP_POINT;
         if (rightTopCircleRect.contains(x, y))// 选中右上角
-            return 2;
+            return RIGHT_TOP_POINT;
         if (leftBottomRect.contains(x, y))// 选中左下角
-            return 3;
+            return LEFT_BOTTOM_POINT;
         if (rightBottomRect.contains(x, y))// 选中右下角
-            return 4;
+            return RIGHT_BOTTOM_POINT;
         return -1;
     }
 
@@ -354,8 +304,6 @@ public class CropImageView extends View {
 
     /**
      * 返回剪切矩形
-     *
-     * @return
      */
     public RectF getCropRect() {
         return new RectF(this.cropRect);
@@ -363,19 +311,14 @@ public class CropImageView extends View {
 
     /**
      * 缩放指定矩形
-     *
-     * @param rect
      */
     private static void scaleRect(RectF rect, float scaleX, float scaleY) {
         float w = rect.width();
         float h = rect.height();
-
         float newW = scaleX * w;
         float newH = scaleY * h;
-
         float dx = (newW - w) / 2;
         float dy = (newH - h) / 2;
-
         rect.left -= dx;
         rect.top -= dy;
         rect.right += dx;
@@ -384,9 +327,6 @@ public class CropImageView extends View {
 
     /**
      * 缩放指定矩形
-     *
-     * @param rect
-     * @param scale
      */
     private static void scaleRect(RectF rect, float scale) {
         scaleRect(rect, scale, scale);

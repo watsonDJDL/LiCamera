@@ -42,7 +42,7 @@ public class CropFragment extends BaseEditFragment {
     private static List<RatioItem> dataList = new ArrayList<RatioItem>();
     static {
         // init data
-        dataList.add(new RatioItem("none", -1f));
+        dataList.add(new RatioItem("自定义", -1f));
         dataList.add(new RatioItem("1:1", 1f));
         dataList.add(new RatioItem("1:2", 1 / 2f));
         dataList.add(new RatioItem("1:3", 1 / 3f));
@@ -66,11 +66,6 @@ public class CropFragment extends BaseEditFragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         mainView = inflater.inflate(R.layout.fragment_edit_image_crop, null);
@@ -78,7 +73,6 @@ public class CropFragment extends BaseEditFragment {
     }
 
     private void setUpRatioList() {
-        // init UI
         ratioList.removeAllViews();
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -100,15 +94,12 @@ public class CropFragment extends BaseEditFragment {
             dataList.get(i).setIndex(i);
             text.setTag(dataList.get(i));
             text.setOnClickListener(mCropRationClick);
-        }// end for i
+        }
         selctedTextView.setTextColor(SELECTED_COLOR);
     }
 
     /**
      * 选择剪裁比率
-     *
-     * @author
-     *
      */
     private final class CropRationClick implements View.OnClickListener {
         @Override
@@ -118,19 +109,15 @@ public class CropFragment extends BaseEditFragment {
             RatioItem dataItem = (RatioItem) v.getTag();
             selctedTextView = curTextView;
             selctedTextView.setTextColor(SELECTED_COLOR);
-
-            mCropPanel.setRatioCropRect(activity.mainImage.getBitmapRect(),
-                    dataItem.getRatio());
-            // System.out.println("dataItem   " + dataItem.getText());
+            mCropPanel.setRatioCropRect(activity.mainImage.getBitmapRect(), dataItem.getRatio());
         }
-    }// end inner class
+    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         backToMenu = mainView.findViewById(R.id.back_to_main);
-        ratioList = (LinearLayout) mainView.findViewById(R.id.ratio_list_group);
+        ratioList = mainView.findViewById(R.id.ratio_list_group);
         setUpRatioList();
         this.mCropPanel = ensureEditActivity().mCropPanel;
         backToMenu.setOnClickListener(new BackToMenuClick());// 返回主菜单
@@ -139,22 +126,14 @@ public class CropFragment extends BaseEditFragment {
     @Override
     public void onShow() {
         activity.mode = EditImageActivity.MODE_CROP;
-
         activity.mCropPanel.setVisibility(View.VISIBLE);
         activity.mainImage.setImageBitmap(activity.getMainBit());
         activity.mainImage.setDisplayType(ImageViewTouchBase.DisplayType.FIT_TO_SCREEN);
         activity.mainImage.setScaleEnabled(false);// 禁用缩放
-        // System.out.println(r.left + "    " + r.top);
         activity.bannerFlipper.showNext();
-
-        //  bug  fixed  https://github.com/siwangqishiq/ImageEditor-Android/issues/59
-        // 设置完与屏幕匹配的尺寸  确保变换矩阵设置生效后才设置裁剪区域
-        activity.mainImage.post(new Runnable() {
-            @Override
-            public void run() {
-                final RectF r = activity.mainImage.getBitmapRect();
-                activity.mCropPanel.setCropRect(r);
-            }
+        activity.mainImage.post(() -> {
+            final RectF r = activity.mainImage.getBitmapRect();
+            activity.mCropPanel.setCropRect(r);
         });
     }
 
@@ -166,7 +145,7 @@ public class CropFragment extends BaseEditFragment {
         public void onClick(View v) {
             backToMain();
         }
-    }// end class
+    }
 
     /**
      * 返回主菜单
@@ -188,7 +167,6 @@ public class CropFragment extends BaseEditFragment {
      * 保存剪切图片
      */
     public void applyCropImage() {
-        // System.out.println("保存剪切图片");
         CropImageTask task = new CropImageTask();
         task.execute(activity.getMainBit());
     }
@@ -220,12 +198,10 @@ public class CropFragment extends BaseEditFragment {
             dialog.show();
         }
 
-        @SuppressWarnings("WrongThread")
         @Override
         protected Bitmap doInBackground(Bitmap... params) {
             RectF cropRect = mCropPanel.getCropRect();// 剪切区域矩形
             Matrix touchMatrix = activity.mainImage.getImageViewMatrix();
-            // Canvas canvas = new Canvas(resultBit);
             float[] data = new float[9];
             touchMatrix.getValues(data);// 底部图片变化记录矩阵原始数据
             Matrix3 cal = new Matrix3(data);// 辅助矩阵计算类
@@ -233,18 +209,9 @@ public class CropFragment extends BaseEditFragment {
             Matrix m = new Matrix();
             m.setValues(inverseMatrix.getValues());
             m.mapRect(cropRect);// 变化剪切矩形
-
-            // Paint paint = new Paint();
-            // paint.setColor(Color.RED);
-            // paint.setStrokeWidth(10);
-            // canvas.drawRect(cropRect, paint);
-            // Bitmap resultBit = Bitmap.createBitmap(params[0]).copy(
-            // Bitmap.Config.ARGB_8888, true);
             Bitmap resultBit = Bitmap.createBitmap(params[0],
                     (int) cropRect.left, (int) cropRect.top,
                     (int) cropRect.width(), (int) cropRect.height());
-
-            //saveBitmap(resultBit, activity.saveFilePath);
             return resultBit;
         }
 
@@ -254,33 +221,9 @@ public class CropFragment extends BaseEditFragment {
             dialog.dismiss();
             if (result == null)
                 return;
-
             activity.changeMainBitmap(result,true);
             activity.mCropPanel.setCropRect(activity.mainImage.getBitmapRect());
             backToMain();
         }
-    }// end inner class
-
-    /**
-     * 保存Bitmap图片到指定文件
-     */
-    public static void saveBitmap(Bitmap bm, String filePath) {
-        File f = new File(filePath);
-        if (f.exists()) {
-            f.delete();
-        }
-        try {
-            FileOutputStream out = new FileOutputStream(f);
-            bm.compress(Bitmap.CompressFormat.PNG, 90, out);
-            out.flush();
-            out.close();
-        } catch (FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        // System.out.println("保存文件--->" + f.getAbsolutePath());
     }
 }

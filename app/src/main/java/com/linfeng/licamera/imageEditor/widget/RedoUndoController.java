@@ -24,7 +24,7 @@ public class RedoUndoController implements View.OnClickListener {
         this.mActivity = activity;
         this.mRootView = panelView;
 
-        mUndoBtn = mRootView.findViewById(R.id.uodo_btn);
+        mUndoBtn = mRootView.findViewById(R.id.undo_btn);
         mRedoBtn = mRootView.findViewById(R.id.redo_btn);
 
         mUndoBtn.setOnClickListener(this);
@@ -49,7 +49,7 @@ public class RedoUndoController implements View.OnClickListener {
             undoClick();
         } else if (v == mRedoBtn) {
             redoClick();
-        }//end if
+        }
     }
 
 
@@ -57,7 +57,6 @@ public class RedoUndoController implements View.OnClickListener {
      * 撤销操作
      */
     protected void undoClick() {
-        //System.out.println("Undo!!!");
         Bitmap lastBitmap = mEditCache.getNextCurrentBit();
         if (lastBitmap != null && !lastBitmap.isRecycled()) {
             mActivity.changeMainBitmap(lastBitmap, false);
@@ -68,7 +67,6 @@ public class RedoUndoController implements View.OnClickListener {
      * 取消撤销
      */
     protected void redoClick() {
-        //System.out.println("Redo!!!");
         Bitmap preBitmap = mEditCache.getPreCurrentBit();
         if (preBitmap != null && !preBitmap.isRecycled()) {
             mActivity.changeMainBitmap(preBitmap, false);
@@ -79,8 +77,6 @@ public class RedoUndoController implements View.OnClickListener {
      * 根据状态更新按钮显示
      */
     public void updateBtns() {
-        //System.out.println("缓存Size = " + mEditCache.getSize() + "  current = " + mEditCache.getCur());
-        //System.out.println("content = " + mEditCache.debugLog());
         mUndoBtn.setVisibility(mEditCache.checkNextBitExist() ? View.VISIBLE : View.INVISIBLE);
         mRedoBtn.setVisibility(mEditCache.checkPreBitExist() ? View.VISIBLE : View.INVISIBLE);
     }

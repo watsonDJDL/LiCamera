@@ -7,7 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * 保存之前操作生成的位图
+ * 保存之前操作生成的Bitmap
  */
 public class EditCache {
     public static final int EDIT_CACHE_SIZE = 10;
@@ -45,14 +45,6 @@ public class EditCache {
         return mCurrent;
     }
 
-    public String debugLog() {
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < mCacheList.size(); i++) {
-            sb.append("{ " + mCacheList.get(i) + " }");
-        }
-        return sb.toString();
-    }
-
     public synchronized boolean push(Bitmap bitmap) {
         if (bitmap == null || bitmap.isRecycled())
             return false;
@@ -60,7 +52,7 @@ public class EditCache {
         while (!isPointToLastElem()) {
             Bitmap dropBit = mCacheList.pollLast();
             freeBitmap(dropBit);
-        }//end for each
+        }
 
         Bitmap allReadyHaveBitmap = null;
         for (Bitmap b : mCacheList) {
@@ -68,16 +60,16 @@ public class EditCache {
                 allReadyHaveBitmap = bitmap;
                 break;
             }
-        }//end for each
+        }
 
         if (allReadyHaveBitmap != null) {
             mCacheList.remove(allReadyHaveBitmap);//do swap
             mCacheList.addLast(allReadyHaveBitmap);
             trimCacheList();
-        } else {// add new bitmap
+        } else {
             mCacheList.addLast(bitmap);
             trimCacheList();
-        }//end if
+        }
 
         //指针指向最后一个元素
         mCurrent = mCacheList.size() - 1;
@@ -101,7 +93,6 @@ public class EditCache {
 
     /**
      * 可以撤销到前一步的操作
-     * @return
      */
     public boolean checkNextBitExist() {
         int point = mCurrent - 1;
@@ -110,13 +101,11 @@ public class EditCache {
 
     /**
      * 可取消撤销到后一操作
-     * @return
      */
     public boolean checkPreBitExist() {
         int point = mCurrent + 1;
         return point>=0 && point<mCacheList.size();
     }
-
 
     public synchronized void removeAll() {
         for (Bitmap b : mCacheList) {
@@ -178,7 +167,7 @@ public class EditCache {
         while (mCacheList.size() > mCacheSize) {
             Bitmap dropBit = mCacheList.pollFirst();
             freeBitmap(dropBit);
-        }//end while
+        }
     }
 
 }

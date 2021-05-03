@@ -7,16 +7,12 @@ import android.util.TypedValue;
 
 public class PaintUtil {
 
-    // Private Constants ///////////////////////////////////////////////////////
-
     private static final int DEFAULT_CORNER_COLOR = Color.WHITE;
     private static final String SEMI_TRANSPARENT = "#AAFFFFFF";
     private static final String DEFAULT_BACKGROUND_COLOR_ID = "#B0000000";
     private static final float DEFAULT_LINE_THICKNESS_DP = 3;
     private static final float DEFAULT_CORNER_THICKNESS_DP = 5;
     private static final float DEFAULT_GUIDELINE_THICKNESS_PX = 1;
-
-    // Public Methods //////////////////////////////////////////////////////////
 
     /**
      * Creates the Paint object for drawing the crop window border.
@@ -46,41 +42,25 @@ public class PaintUtil {
      * @return the new Paint object
      */
     public static Paint newGuidelinePaint() {
-
         final Paint paint = new Paint();
         paint.setColor(Color.parseColor(SEMI_TRANSPARENT));
         paint.setStrokeWidth(DEFAULT_GUIDELINE_THICKNESS_PX);
-
         return paint;
     }
 
-    /**
-     * Creates the Paint object for drawing the crop window guidelines.
-     *
-     * @return the new Paint object
-     */
     public static Paint newRotateBottomImagePaint() {
-
         final Paint paint = new Paint();
         paint.setColor(Color.WHITE);
         paint.setStrokeWidth(3);
-
         return paint;
     }
 
     /**
-     * Creates the Paint object for drawing the translucent overlay outside the
-     * crop window.
-     *
-     * @param context
-     *            the Context
-     * @return the new Paint object
+     * 创建一个用来在裁剪区域外绘制半透明蒙层的Paint对象
      */
-    public static Paint newBackgroundPaint(Context context) {
-
+    public static Paint newBackgroundPaint() {
         final Paint paint = new Paint();
         paint.setColor(Color.parseColor(DEFAULT_BACKGROUND_COLOR_ID));
-
         return paint;
     }
 

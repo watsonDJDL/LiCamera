@@ -3,11 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:scrollbars="none"
     android:layout_width="wrap_content"
-    android:layout_height="fill_parent">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:orientation="horizontal">
 
         <TextView
@@ -17,7 +17,7 @@
             android:layout_gravity="center"
             android:layout_margin="@dimen/image_edit_menu_margin"
             android:gravity="center"
-            android:text="@string/edit"
+            android:text="@string/paint"
             android:textColor="@color/white"
             android:textSize="@dimen/image_edit_text_size"/>
 

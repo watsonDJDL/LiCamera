@@ -103,7 +103,6 @@ class Mp4ComposerEngine {
             // setup audio if present and not muted
             if (mediaMetadataRetriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_HAS_AUDIO) != null && !mute) {
                 // has Audio video
-
                 if (timeScale < 2) {
                     audioComposer = new AudioComposer(mediaExtractor, audioTrackIndex, muxRender);
                 } else {
@@ -163,9 +162,9 @@ class Mp4ComposerEngine {
             }// unknown
         }
         while (!(videoComposer.isFinished() && audioComposer.isFinished())) {
-            boolean stepped = videoComposer.stepPipeline()
-                    || audioComposer.stepPipeline();
+            boolean stepped = videoComposer.stepPipeline() || audioComposer.stepPipeline();
             loopCount++;
+            // 获取进度
             if (durationUs > 0 && loopCount % PROGRESS_INTERVAL_STEPS == 0) {
                 double videoProgress = videoComposer.isFinished() ? 1.0 : Math
                         .min(1.0, (double) videoComposer.getWrittenPresentationTimeUs() / durationUs);
@@ -180,7 +179,7 @@ class Mp4ComposerEngine {
                 try {
                     Thread.sleep(SLEEP_TO_WAIT_TRACK_TRANSCODERS);
                 } catch (InterruptedException e) {
-                    // nothing to do
+                    Log.e(TAG,"Error when run pipe lines :", e);
                 }
             }
         }

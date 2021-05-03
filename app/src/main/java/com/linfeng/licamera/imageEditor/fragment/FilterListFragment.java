@@ -27,10 +27,10 @@ public class FilterListFragment extends BaseEditFragment {
     private View mainView;
     private View backBtn;// 返回主菜单按钮
 
-    private Bitmap fliterBit;// 滤镜处理后的bitmap
+    private Bitmap filterBit;// 滤镜处理后的bitmap
 
     private LinearLayout mFilterGroup;// 滤镜列表
-    private String[] fliters;
+    private String[] filters;
     private Bitmap currentBitmap;// 标记变量
 
     public static FilterListFragment newInstance() {
@@ -82,7 +82,7 @@ public class FilterListFragment extends BaseEditFragment {
     @Override
     public void backToMain() {
         currentBitmap = activity.getMainBit();
-        fliterBit = null;
+        filterBit = null;
         activity.mainImage.setImageBitmap(activity.getMainBit());// 返回原图
         activity.mode = EditImageActivity.MODE_NONE;
         activity.bottomGallery.setCurrentItem(0);
@@ -94,24 +94,21 @@ public class FilterListFragment extends BaseEditFragment {
      * 保存滤镜处理后的图片
      */
     public void applyFilterImage() {
-        // System.out.println("保存滤镜处理后的图片");
         if (currentBitmap == activity.getMainBit()) {// 原始图片
-            // System.out.println("原始图片");
             backToMain();
             return;
         } else {// 经滤镜处理后的图片
-            // System.out.println("滤镜图片");
-            activity.changeMainBitmap(fliterBit,true);
+            activity.changeMainBitmap(filterBit,true);
             backToMain();
-        }// end if
+        }
     }
 
     /**
      * 装载滤镜
      */
     private void setUpFliters() {
-        fliters = getResources().getStringArray(R.array.filters);
-        if (fliters == null)
+        filters = getResources().getStringArray(R.array.filters);
+        if (filters == null)
             return;
 
         LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
@@ -121,21 +118,21 @@ public class FilterListFragment extends BaseEditFragment {
         params.leftMargin = 20;
         params.rightMargin = 20;
         mFilterGroup.removeAllViews();
-        for (int i = 0, len = fliters.length; i < len; i++) {
+        for (int i = 0, len = filters.length; i < len; i++) {
             TextView text = new TextView(activity);
             text.setTextColor(Color.WHITE);
             text.setTextSize(20);
-            text.setText(fliters[i]);
+            text.setText(filters[i]);
             mFilterGroup.addView(text, params);
             text.setTag(i);
             text.setOnClickListener(new FliterClick());
-        }// end for i
+        }
     }
 
     @Override
     public void onDestroy() {
-        if (fliterBit != null && (!fliterBit.isRecycled())) {
-            fliterBit.recycle();
+        if (filterBit != null && (!filterBit.isRecycled())) {
+            filterBit.recycle();
         }
         super.onDestroy();
     }
@@ -156,7 +153,7 @@ public class FilterListFragment extends BaseEditFragment {
             ProcessingImage task = new ProcessingImage();
             task.execute(position);
         }
-    }// end inner class
+    }
 
     /**
      * 图片滤镜处理任务
@@ -196,12 +193,12 @@ public class FilterListFragment extends BaseEditFragment {
             dialog.dismiss();
             if (result == null)
                 return;
-            if (fliterBit != null && (!fliterBit.isRecycled())) {
-                fliterBit.recycle();
+            if (filterBit != null && (!filterBit.isRecycled())) {
+                filterBit.recycle();
             }
-            fliterBit = result;
-            activity.mainImage.setImageBitmap(fliterBit);
-            currentBitmap = fliterBit;
+            filterBit = result;
+            activity.mainImage.setImageBitmap(filterBit);
+            currentBitmap = filterBit;
         }
 
         @Override
@@ -212,7 +209,7 @@ public class FilterListFragment extends BaseEditFragment {
             dialog.show();
         }
 
-    }// end inner class
+    }
 
     public Bitmap getCurrentBitmap() {
         return currentBitmap;

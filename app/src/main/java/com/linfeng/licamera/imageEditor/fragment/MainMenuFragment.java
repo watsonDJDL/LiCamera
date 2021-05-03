@@ -19,7 +19,7 @@ public class MainMenuFragment extends BaseEditFragment implements View.OnClickLi
     private View cropBtn;// 剪裁按钮
     private View rotateBtn;// 旋转按钮
     private View mTextBtn;//文字型贴图添加
-    private View mPaintBtn;//编辑按钮
+    private View mPaintBtn;//绘制按钮
     private View mBeautyBtn;//美颜按钮
 
     public static MainMenuFragment newInstance() {

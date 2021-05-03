@@ -7,12 +7,12 @@
 
     <View
         android:id="@+id/colorView"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="150dp"
         android:elevation="2dp"/>
 
     <RelativeLayout
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/white"
         android:paddingBottom="@dimen/materialcolorpicker__activity_vertical_margin"
@@ -22,7 +22,7 @@
 
         <TextView
             android:id="@+id/redToolTip"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="sans-serif-medium"
             android:singleLine="true"
@@ -31,7 +31,7 @@
 
         <SeekBar
             android:id="@+id/redSeekBar"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/redToolTip"
             android:max="255"
@@ -42,7 +42,7 @@
 
         <TextView
             android:id="@+id/greenToolTip"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/redSeekBar"
             android:fontFamily="sans-serif-medium"
@@ -52,7 +52,7 @@
 
         <SeekBar
             android:id="@+id/greenSeekBar"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/greenToolTip"
             android:max="255"
@@ -63,7 +63,7 @@
 
         <TextView
             android:id="@+id/blueToolTip"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/greenSeekBar"
             android:fontFamily="sans-serif-medium"
@@ -73,7 +73,7 @@
 
         <SeekBar
             android:id="@+id/blueSeekBar"
-            android:layout_width="fill_parent"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/blueToolTip"
             android:max="255"

@@ -337,9 +337,9 @@ public class EditImageActivity  extends EditorBaseActivity{
                     break;
                 default:
                     break;
-            }// end switch
+            }
         }
-    }// end inner class
+    }
 
     /**
      * 保存按钮 点击退出
@@ -392,11 +392,9 @@ public class EditImageActivity  extends EditorBaseActivity{
         if (mLoadImageTask != null) {
             mLoadImageTask.cancel(true);
         }
-
         if (mSaveImageTask != null) {
             mSaveImageTask.cancel(true);
         }
-
         if (mRedoUndoController != null) {
             mRedoUndoController.onDestroy();
         }

@@ -511,10 +511,10 @@ public class VideoUtil {
 
         for (Movie m : moviesList) {
             for (Track t : m.getTracks()) {
-                if (t.getHandler().equals("soun")) {
+                if (t.getHandler().equals("sound")) {
                     audioTracks.add(t);
                 }
-                if (t.getHandler().equals("vide")) {
+                if (t.getHandler().equals("video")) {
                     videoTracks.add(t);
                 }
             }
@@ -562,7 +562,7 @@ public class VideoUtil {
             Movie videoMovie = MovieCreator.build(mp4Path);
             Track videoTracks = null;// 获取视频的单纯视频部分
             for (Track videoMovieTrack : videoMovie.getTracks()) {
-                if ("vide".equals(videoMovieTrack.getHandler())) {
+                if ("video".equals(videoMovieTrack.getHandler())) {
                     videoTracks = videoMovieTrack;
                 }
             }
@@ -597,7 +597,7 @@ public class VideoUtil {
         Movie audioMovie = MovieCreator.build(m4aPath);
         Track audioTracks = null;// 获取视频的单纯音频部分
         for (Track audioMovieTrack : audioMovie.getTracks()) {
-            if ("soun".equals(audioMovieTrack.getHandler())) {
+            if ("sound".equals(audioMovieTrack.getHandler())) {
                 audioTracks = audioMovieTrack;
             }
         }
@@ -605,7 +605,7 @@ public class VideoUtil {
         Movie videoMovie = MovieCreator.build(mp4Path);
         Track videoTracks = null;// 获取视频的单纯视频部分
         for (Track videoMovieTrack : videoMovie.getTracks()) {
-            if ("vide".equals(videoMovieTrack.getHandler())) {
+            if ("video".equals(videoMovieTrack.getHandler())) {
                 videoTracks = videoMovieTrack;
             }
         }
@@ -633,7 +633,7 @@ public class VideoUtil {
             Movie videoMovie = MovieCreator.build(mp4Path);
             Track videoTracks = null;// 获取视频的单纯视频部分
             for (Track videoMovieTrack : videoMovie.getTracks()) {
-                if ("vide".equals(videoMovieTrack.getHandler())) {
+                if ("video".equals(videoMovieTrack.getHandler())) {
                     videoTracks = videoMovieTrack;
                 }
             }
@@ -664,7 +664,7 @@ public class VideoUtil {
             Movie videoMovie = MovieCreator.build(mp4Path);
             Track videoTracks = null;// 获取音频的单纯视频部分
             for (Track videoMovieTrack : videoMovie.getTracks()) {
-                if ("soun".equals(videoMovieTrack.getHandler())) {
+                if ("sound".equals(videoMovieTrack.getHandler())) {
                     videoTracks = videoMovieTrack;
                 }
             }
@@ -696,10 +696,10 @@ public class VideoUtil {
             Track sounTracks = null;// 获取视频的单纯音频部分
 
             for (Track videoMovieTrack : videoMovie.getTracks()) {
-                if ("vide".equals(videoMovieTrack.getHandler())) {
+                if ("video".equals(videoMovieTrack.getHandler())) {
                     videTracks = videoMovieTrack;
                 }
-                if ("soun".equals(videoMovieTrack.getHandler())) {
+                if ("sound".equals(videoMovieTrack.getHandler())) {
                     sounTracks = videoMovieTrack;
                 }
             }
@@ -766,13 +766,13 @@ public class VideoUtil {
         Movie mp4Movie = MovieCreator.build(mp4Path);
         Track videoTracks = null;// 获取视频的单纯视频部分
         for (Track videoMovieTrack : mp4Movie.getTracks()) {
-            if ("vide".equals(videoMovieTrack.getHandler())) {
+            if ("video".equals(videoMovieTrack.getHandler())) {
                 videoTracks = videoMovieTrack;
             }
         }
         Track audioTracks = null;// 获取视频的单纯音频部分
         for (Track audioMovieTrack : mp4Movie.getTracks()) {
-            if ("soun".equals(audioMovieTrack.getHandler())) {
+            if ("sound".equals(audioMovieTrack.getHandler())) {
                 audioTracks = audioMovieTrack;
             }
         }

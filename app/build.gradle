@@ -34,6 +34,8 @@ android {
 }
 
 dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation files('libs/ocr-sdk.jar')
     implementation "io.reactivex.rxjava3:rxjava:3.0.12"
     implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
     implementation 'com.github.bumptech.glide:glide:4.12.0'

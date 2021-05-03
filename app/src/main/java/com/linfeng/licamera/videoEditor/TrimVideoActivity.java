@@ -344,8 +344,7 @@ public class TrimVideoActivity extends VideoBaseActivity {
         int extractW = mMaxWidth / MAX_COUNT_RANGE;
         int extractH = CommonUtil.dip2px(62);
         mExtractFrameWorkThread = new ExtractFrameWorkThread(extractW, extractH, mUIHandler,
-                mVideoPath,
-                OutPutFileDirPath, startPosition, endPosition, thumbnailsCount);
+                mVideoPath, OutPutFileDirPath, startPosition, endPosition, thumbnailsCount);
         mExtractFrameWorkThread.start();
 
         //init pos icon start
@@ -443,8 +442,8 @@ public class TrimVideoActivity extends VideoBaseActivity {
 
                     @Override
                     public void onNext(String outputPath) {
-                        // /storage/emulated/0/Android/data/com.kangoo.diaoyur/files/small_video/trimmedVideo_20180416_153217.mp4
-                        Log.e(TAG, "cutVideo---onSuccess");
+                        // /storage/emulated/0/Android/data/com.linfeng.licamera/files/small_video/trimmedVideo_xxxx.mp4
+                        Log.d(TAG, "cutVideo---onSuccess");
                         try {
                             startMediaCodec(outputPath);
                         } catch (Exception e) {
@@ -466,9 +465,6 @@ public class TrimVideoActivity extends VideoBaseActivity {
                 });
     }
 
-    /**
-     * 视频添加滤镜效果
-     */
     private void startMediaCodec(String srcPath) {
         final String outputPath = VideoUtil.getTrimmedVideoPath(this, "small_video/trimmedVideo",
                 "filterVideo_");
