@@ -9,8 +9,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * 接口地址管理
- *
- * @author llw
  */
 public class ServiceGenerator {
 

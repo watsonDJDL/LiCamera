@@ -5,8 +5,6 @@ import com.linfeng.licamera.videoEditor.utils.OpenGlUtils;
 
 /**
  * Adjusts the contrast of the video.
- *
- * @author sheraz.khilji
  */
 public class ContrastEffect extends GlFilter {
 

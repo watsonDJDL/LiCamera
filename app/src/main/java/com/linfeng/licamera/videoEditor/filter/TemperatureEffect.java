@@ -4,8 +4,6 @@ import com.linfeng.licamera.videoEditor.utils.OpenGlUtils;
 
 /**
  * Adjusts color temperature of the video.
- *
- * @author sheraz.khilji
  */
 public class TemperatureEffect extends GlFilter {
 

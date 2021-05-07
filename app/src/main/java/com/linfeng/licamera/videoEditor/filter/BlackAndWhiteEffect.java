@@ -5,8 +5,6 @@ import com.linfeng.licamera.videoEditor.utils.OpenGlUtils;
 /**
  * 黑白滤镜，
  * Converts the video into black and white colors
- *
- * @author sheraz.khilji
  */
 public class BlackAndWhiteEffect extends GlFilter {
 

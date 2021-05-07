@@ -27,6 +27,7 @@ import com.linfeng.licamera.util.BitmapUtils;
 public class MainActivity extends AppCompatActivity {
   private static final String TAG = "MainActivity";
   public static final int ACTION_REQUEST_EDIT_IMAGE = 1;
+  private static final int LOGIN_RESULT_OK = 1;
   private CameraHelper cameraHelper;
   private CameraFragment mCameraFragment;
 
@@ -57,6 +58,9 @@ public class MainActivity extends AppCompatActivity {
   @Override
   protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
+    if (resultCode == LOGIN_RESULT_OK) {
+      mCameraFragment.onLoginSuccessful();
+    }
     if (requestCode == ACTION_REQUEST_EDIT_IMAGE) {
       handleEditorImage(data);
     }

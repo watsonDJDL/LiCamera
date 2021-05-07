@@ -175,7 +175,7 @@ public class PaintFragment extends BaseEditFragment implements View.OnClickListe
 
     /**
      * 设置画笔粗细
-     * show popwidnow to set paint width
+     * show popwindnow to set paint width
      */
     protected void setStokeWidth() {
         if (popView.getMeasuredHeight() == 0) {

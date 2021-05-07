@@ -3,11 +3,7 @@ package com.linfeng.licamera.videoEditor.filter;
 import com.linfeng.licamera.videoEditor.utils.OpenGlUtils;
 
 /**
- * @author LLhon
- * @Project diaoyur_android
- * @Package com.marvhong.videoeffect.filter
- * @Date 2018/8/16 17:32
- * @description 素描
+ * 素描效果
  */
 public class SketchEffect extends GlFilter {
 

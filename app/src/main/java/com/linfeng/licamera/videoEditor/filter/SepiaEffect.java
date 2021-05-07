@@ -5,8 +5,6 @@ import com.linfeng.licamera.videoEditor.utils.OpenGlUtils;
 /**
  * 怀旧(棕褐)色调
  * Converts video to Sepia tone.
- *
- * @author sheraz.khilji
  */
 public class SepiaEffect extends GlFilter {
 

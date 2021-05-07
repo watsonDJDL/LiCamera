@@ -4,16 +4,35 @@
     android:id="@+id/camera_fragment_root_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
+  <TextView
+      android:id="@+id/login"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginLeft="8dp"
+      android:textSize="25sp"
+      android:textColor="@color/red"
+      android:text="登录"/>
 
   <ImageView android:id="@+id/camera_switch_btn"
     android:layout_height="40dp"
     android:layout_width="40dp"
     android:layout_gravity="top|right"
+      android:layout_marginRight="8dp"
     android:src="@mipmap/switch_camera" />
+
+  <TextView
+      android:text="画幅"
+      android:id="@+id/frame_btn"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_gravity="top|center_horizontal"
+      android:textSize="25sp"
+      />
 
   <ImageView android:id="@+id/frame_switch_btn"
       android:layout_height="40dp"
       android:layout_width="40dp"
+      android:visibility="gone"
       android:layout_gravity="top|center_horizontal"
       android:src="@mipmap/beauty_icon" />
 

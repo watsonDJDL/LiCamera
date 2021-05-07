@@ -1,16 +1,21 @@
 package com.linfeng.licamera.camera;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.fragment.app.FragmentTransaction;
 
+import com.linfeng.licamera.MainActivity;
 import com.linfeng.licamera.camera.tab.CameraTabEntity;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BasePresenter;
 import com.linfeng.licamera.camera.tab.CameraTabId;
 import com.linfeng.licamera.camera.tab.CameraTabPresenter;
+import com.linfeng.licamera.login.LoginActivity;
 import com.linfeng.licamera.picture.PictureFragment;
 import com.linfeng.licamera.util.CommonUtil;
 import com.linfeng.licamera.videoEditor.TrimVideoActivity;
@@ -21,6 +26,7 @@ import io.reactivex.rxjava3.core.Observable;
 
 public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptureListener {
   private final static String TAG = "CameraPresenter";
+  private final static int REQUEST_FOR_LOGIN = 1;
   private CameraViewGroup mCameraViewGroup;
   //控制相机
   private CameraHelper mCameraHelper;
@@ -107,10 +113,12 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
 
   public void startRecord() {
       mCameraHelper.startRecord();
+    Toast.makeText(mFragment.getContext(),"开始录制", Toast.LENGTH_SHORT).show();
   }
 
   public void stopRecord() {
       mCameraHelper.stopRecord();
+    Toast.makeText(mFragment.getContext(),"结束录制", Toast.LENGTH_SHORT).show();
       TrimVideoActivity.startActivity(mFragment.getContext(), mCameraHelper.getOutputMediaFile());
   }
 
@@ -153,5 +161,15 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
 
   public CameraTabPresenter getCameraTabPresenter() {
     return mCameraTabPresenter;
+  }
+
+  public void onLoginBtnClick() {
+    Activity context = mFragment.getActivity();
+    Intent intent = new Intent(context, LoginActivity.class);
+    context.startActivityForResult(intent,REQUEST_FOR_LOGIN);
+  }
+
+  public void onLoginSuccessful() {
+
   }
 }

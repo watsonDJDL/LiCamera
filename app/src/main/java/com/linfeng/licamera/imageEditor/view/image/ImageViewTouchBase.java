@@ -46,9 +46,6 @@ public abstract class ImageViewTouchBase extends ImageView implements
     /**
      * Use this to change the
      * {@link ImageViewTouchBase#setDisplayType(DisplayType)} of this View
-     *
-     * @author alessandro
-     *
      */
     public enum DisplayType {
         /** Image is not scaled by default */

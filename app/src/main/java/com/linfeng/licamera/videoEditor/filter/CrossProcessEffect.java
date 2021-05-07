@@ -6,8 +6,6 @@ import com.linfeng.licamera.videoEditor.utils.OpenGlUtils;
 /**
  * Applies a cross process effect on video, in which the red and green channels
  * are enhanced while the blue channel is restricted.
- *
- * @author sheraz.khilji
  */
 public class CrossProcessEffect extends GlFilter {
 

@@ -4,8 +4,6 @@ import com.linfeng.licamera.videoEditor.utils.OpenGlUtils;
 
 /**
  * Applies Posterization effect to video.
- *
- * @author sheraz.khilji
  */
 public class PosterizeEffect extends GlFilter {
 

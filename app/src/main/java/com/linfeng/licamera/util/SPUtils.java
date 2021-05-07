@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 
 /**
  * SharedPreferences工具类
- *
- * @author llw
  */
 public class SPUtils {
     private static final String NAME = "config";

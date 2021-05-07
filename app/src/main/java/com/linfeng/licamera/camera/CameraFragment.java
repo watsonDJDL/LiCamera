@@ -1,12 +1,14 @@
 package com.linfeng.licamera.camera;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +22,8 @@ import com.linfeng.licamera.base.BaseFragment;
 import com.linfeng.licamera.camera.frame.FramePresenter;
 import com.linfeng.licamera.imageEditor.view.image.easing.Linear;
 
+import org.w3c.dom.Text;
+
 import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_9_16;
 
 public class CameraFragment extends BaseFragment {
@@ -29,8 +33,9 @@ public class CameraFragment extends BaseFragment {
   private CameraViewGroup mCameraViewGroup;
   private AppCompatImageButton mCameraBtn;
   private ImageView mSwitchBtn;
-  private ImageView mFrameSwitchBtn;
+  private TextView mFrameSwitchBtn;
   private RecyclerView mCameraTabRecyclerView;
+  private TextView mLoginView;
 
   public CameraFragment() {
     mCameraPresenter = new CameraPresenter(this);
@@ -64,9 +69,12 @@ public class CameraFragment extends BaseFragment {
 
     mCameraBtn = view.findViewById(R.id.camera_btn);
     mSwitchBtn = view .findViewById(R.id.camera_switch_btn);
-    mFrameSwitchBtn = view.findViewById(R.id.frame_switch_btn);
+    mFrameSwitchBtn = view.findViewById(R.id.frame_btn);
+
     setViewsClickListener();
     mFramePresenter.onFrameStatusChanged(FRAME_9_16);
+    mLoginView = view.findViewById(R.id.login);
+    mLoginView.setOnClickListener(v -> mCameraPresenter.onLoginBtnClick());
   }
 
   @Override
@@ -91,6 +99,10 @@ public class CameraFragment extends BaseFragment {
 
   public CameraViewGroup getCameraViewGroup() {
     return mCameraViewGroup;
+  }
+
+  public void onLoginSuccessful() {
+    mLoginView.setVisibility(View.GONE);
   }
 
   /**
