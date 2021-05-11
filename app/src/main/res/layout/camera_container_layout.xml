@@ -13,6 +13,13 @@
       android:textColor="@color/red"
       android:text="登录"/>
 
+  <ImageView
+      android:id="@+id/statistic_btn"
+      android:layout_width="40dp"
+      android:layout_height="40dp"
+      android:layout_marginLeft="8dp"
+      android:src="@mipmap/statistic" />
+
   <ImageView android:id="@+id/camera_switch_btn"
     android:layout_height="40dp"
     android:layout_width="40dp"
@@ -29,13 +36,6 @@
       android:textSize="25sp"
       />
 
-  <ImageView android:id="@+id/frame_switch_btn"
-      android:layout_height="40dp"
-      android:layout_width="40dp"
-      android:visibility="gone"
-      android:layout_gravity="top|center_horizontal"
-      android:src="@mipmap/beauty_icon" />
-
   <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/camera_tab_recyclerView"
       android:layout_width="160dp"
@@ -51,6 +51,7 @@
       android:padding="5dp">
 
     <com.gcssloop.widget.RCRelativeLayout
+        android:id="@+id/camera_btn_container"
         android:layout_width="105dp"
         android:layout_height="wrap_content"
         android:layout_centerInParent="true"
@@ -74,6 +75,24 @@
           android:src="@drawable/little_red_point" />
 
     </com.gcssloop.widget.RCRelativeLayout>
+
+    <ImageView
+        android:id="@+id/album_entry"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@mipmap/album_entry"
+        android:layout_alignParentLeft="true"
+        android:layout_toLeftOf="@id/camera_btn_container"
+        android:layout_centerInParent="true"/>
+
+    <ImageView
+        android:id="@+id/video_entry"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:src="@mipmap/video_entry"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/camera_btn_container"
+        android:layout_centerInParent="true"/>
 
 
   </RelativeLayout>

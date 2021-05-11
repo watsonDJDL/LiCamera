@@ -949,4 +949,20 @@ public class VideoUtil {
         }
         return folderDir.getAbsolutePath();
     }
+
+    public static Observable<String> remixBackgroundMusic(String videoPath, String audioPath, String outputPath ,int startTimeUs,int endTimeUs,int videoVolume, int audioVolume) {
+        return Observable.create(new ObservableOnSubscribe<String>() {
+            @Override
+            public void subscribe(ObservableEmitter<String> emitter) {
+                try {
+                    RemixAudioUtil.mix(videoPath, audioPath, outputPath, startTimeUs, endTimeUs, videoVolume, audioVolume);
+                    emitter.onNext(outputPath);
+                }catch (Exception e) {
+                    emitter.onError(e);
+                }
+                emitter.onComplete();
+            }
+        }).subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
 }

@@ -16,13 +16,13 @@ import java.net.URL;
 
 public class WebServiceGet {
 
-    public static String executeHttpGet(String username,String password,String address){
+    public static String executeHttpGet(String address, String attr){
         HttpURLConnection connection = null;
         InputStream in = null;
 
         try{
             String Url = "http://192.168.43.217:8080/test/" + address;
-            String path = Url + "?username=" + username + "&password=" + password;
+            String path = Url + attr;
             try {
                 URL url = new URL(path);
                 connection = (HttpURLConnection)url.openConnection();

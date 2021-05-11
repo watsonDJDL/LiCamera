@@ -2,15 +2,18 @@ package com.linfeng.licamera.picture;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -135,7 +138,6 @@ public class PicturePresenter implements BasePresenter {
     }
 
     public void saveImage() {
-        verifyStoragePermissions(mFragment.getActivity());
         if (mBitmap != null) {
             if(saveImageToGallery(mFragment.getContext(), mBitmap)) {
                 mFragment.showSaveImageSuccessfully();
@@ -178,30 +180,14 @@ public class PicturePresenter implements BasePresenter {
         return false;
     }
 
-    private static final int REQUEST_EXTERNAL_STORAGE = 1;
-
-    private static String[] PERMISSIONS_STORAGE = {"android.permission.READ_EXTERNAL_STORAGE","android.permission.WRITE_EXTERNAL_STORAGE" };
-
-    public static void verifyStoragePermissions(Activity activity){
-        try{
-            //检测是否有写的权限
-            int permission= ActivityCompat.checkSelfPermission(activity, "android.permission.WRITE_EXTERNAL_STORAGE");
-            if(permission!= PackageManager.PERMISSION_GRANTED){
-                // 没有写的权限，去申请写的权限，会弹出对话框
-                ActivityCompat.requestPermissions(activity,PERMISSIONS_STORAGE,REQUEST_EXTERNAL_STORAGE);
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-    }
-
     private void onCharacterRecognized() {
         GeneralBasicParams param = new GeneralBasicParams();
         param.setDetectDirection(true);
         param.setImageFile(new File(path));
         Log.d(TAG, "filePath : " + path);
+        Toast.makeText(mFragment.getContext(), "正在识别请稍候...",Toast.LENGTH_SHORT).show();
 
-        recGeneralBasic(CommonUtil.context(), path, result -> Log.d(TAG, "result is : " + result));
+        recGeneralBasic(CommonUtil.context(), path, result -> showCharacterRecognizedResult(result));
     }
 
     public static void recGeneralBasic(Context context, String filePath, final ServiceListener listener) {
@@ -218,7 +204,7 @@ public class PicturePresenter implements BasePresenter {
                             sb.append(word.getWords());
                             sb.append("\n");
                         }
-                        listener.onResult(result.getJsonRes());
+                        listener.onResult(sb.toString());
                     }
 
                     @Override
@@ -227,6 +213,18 @@ public class PicturePresenter implements BasePresenter {
                         listener.onResult(error.getMessage());
                     }
                 });
+    }
+
+    private void showCharacterRecognizedResult(String words) {
+         AlertDialog.Builder dialog = new AlertDialog.Builder(mFragment.getContext());
+         if (TextUtils.isEmpty(words)) {
+             dialog.setTitle("未识别到文字信息");
+         } else {
+             dialog.setTitle("识别内容如下");
+         }
+
+         dialog.setMessage(words);
+         dialog.show();
     }
 
     private void onPictureRecognized() {

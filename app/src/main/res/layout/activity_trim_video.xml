@@ -129,6 +129,10 @@
 
         </HorizontalScrollView>
 
+        <!-- 混音 -->
+        <include layout="@layout/remix_panel_layout"/>
+
+
       </FrameLayout>
 
       <LinearLayout
@@ -185,6 +189,32 @@
             android:layout_height="5dp"
             android:visibility="gone"
             android:background="@android:color/white"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_remix_tab"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_height="match_parent">
+
+          <TextView
+              android:layout_width="wrap_content"
+              android:layout_height="match_parent"
+              android:layout_gravity="center"
+              android:gravity="center_vertical"
+              android:text="混音"
+              android:textSize="16sp"
+              android:textColor="@android:color/white"/>
+
+          <View
+              android:id="@+id/view_remix_indicator"
+              android:layout_width="70dp"
+              android:layout_height="5dp"
+              android:visibility="gone"
+              android:background="@android:color/white"/>
 
         </LinearLayout>
 

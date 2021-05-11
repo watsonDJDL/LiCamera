@@ -1,13 +1,17 @@
 package com.linfeng.licamera.videoEditor;
 
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
@@ -23,17 +27,21 @@ import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.linfeng.licamera.R;
+import com.linfeng.licamera.login.WebServiceGet;
 import com.linfeng.licamera.util.BitmapUtils;
 import com.linfeng.licamera.util.CommonUtil;
 import com.linfeng.licamera.util.FileUtil;
+import com.linfeng.licamera.util.SPUtils;
 import com.linfeng.licamera.videoEditor.base.VideoBaseActivity;
 import com.linfeng.licamera.videoEditor.composer.Mp4Composer;
 import com.linfeng.licamera.videoEditor.compression.SiliCompressor;
@@ -44,6 +52,7 @@ import com.linfeng.licamera.videoEditor.model.VideoEditInfo;
 import com.linfeng.licamera.videoEditor.utils.ConfigUtils;
 import com.linfeng.licamera.videoEditor.utils.ExtractFrameWorkThread;
 import com.linfeng.licamera.videoEditor.utils.ExtractVideoInfoUtil;
+import com.linfeng.licamera.videoEditor.utils.RemixAudioUtil;
 import com.linfeng.licamera.videoEditor.utils.VideoUtil;
 import com.linfeng.licamera.videoEditor.view.GlVideoView;
 import com.linfeng.licamera.videoEditor.view.NormalProgressDialog;
@@ -84,13 +93,28 @@ public class TrimVideoActivity extends VideoBaseActivity {
     View mViewTrimIndicator;
     @BindView(R.id.view_effect_indicator)
     View mViewEffectIndicator;
+    @BindView(R.id.view_remix_indicator)
+    View mViewRemixIndicator;
     @BindView(R.id.ll_trim_container)
     LinearLayout mLlTrimContainer;
     @BindView(R.id.hsv_effect)
     HorizontalScrollView mHsvEffect;
     @BindView(R.id.ll_effect_container)
     LinearLayout mLlEffectContainer;
+    @BindView(R.id.remix_panel)
+    RelativeLayout mRemixPanel;
+    @BindView(R.id.trim_video_btn)
+    ImageView mTrimVideoBtn;
+    @BindView(R.id.video_sound_seek_bar)
+    SeekBar mVideoSeekBar;
+    @BindView(R.id.music_seek_bar)
+    SeekBar mMusicSeekBar;
+    @BindView(R.id.remix_music)
+    ImageView mRemixMusicBtn;
+    @BindView(R.id.choose_music)
+    ImageView mChooseMusicBtn;
     private RangeSeekBar seekBar;
+
 
     private static final String TAG = TrimVideoActivity.class.getSimpleName();
     private static final long MIN_CUT_DURATION = 3 * 1000L;// 最小剪辑时间3s
@@ -119,6 +143,10 @@ public class TrimVideoActivity extends VideoBaseActivity {
     private SurfaceTexture mSurfaceTexture;
     private MediaPlayer mMediaPlayer;
     private Mp4Composer mMp4Composer;
+    private boolean mRemixStatus = false;
+    private String mBgmPath;
+    private int bgmVolume;
+    private int videoVolume;
 
     public static void startActivity(Context context, String videoPath) {
         Intent intent = new Intent(context, TrimVideoActivity.class);
@@ -179,9 +207,8 @@ public class TrimVideoActivity extends VideoBaseActivity {
     @Override
     protected void initToolbar(ToolbarHelper toolbarHelper) {
         toolbarHelper.setTitle("裁剪");
-        toolbarHelper.setMenuTitle("发布", v -> {
-            trimmerVideo();
-        });
+        mTrimVideoBtn.setOnClickListener(v -> trimmerVideo());
+        mChooseMusicBtn.setOnClickListener(v -> chooseRemixMusic());
     }
 
     @Override
@@ -216,24 +243,128 @@ public class TrimVideoActivity extends VideoBaseActivity {
         }
 
         addEffectView();
+        initRemixView();
     }
 
-    @OnClick({R.id.ll_trim_tab, R.id.ll_effect_tab})
+    //混音相关
+
+    private void initRemixView() {
+        mVideoSeekBar.setEnabled(false);
+        mMusicSeekBar.setEnabled(false);
+        mRemixMusicBtn.setOnClickListener(v -> onRemixMusicBtnClick());
+        mVideoSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                videoVolume = progress;
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+        mMusicSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                bgmVolume = progress;
+            }
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) { }
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) { }
+        });
+    }
+
+    private void onRemixMusicBtnClick() {
+        if (!mRemixStatus) {
+            Toast.makeText(TrimVideoActivity.this, "请选择背景音乐", Toast.LENGTH_SHORT).show();
+        } else {
+            //执行混音操作
+            Toast.makeText(TrimVideoActivity.this, "混音开始", Toast.LENGTH_SHORT).show();
+            String outPutPath = CommonUtil.context().getExternalCacheDir() + File.separator + "mixed.mp4";
+            VideoUtil.remixBackgroundMusic(mVideoPath, mBgmPath, outPutPath, 0 ,
+                    mMediaPlayer.getDuration() * 1000, videoVolume, bgmVolume)
+                    .subscribe(new Observer<String>() {
+                        @Override
+                        public void onSubscribe(Disposable d) {
+                            subscribe(d);
+                        }
+
+                        @Override
+                        public void onNext(String outputPath) {
+                            // /storage/emulated/0/Android/data/com.linfeng.licamera/files/small_video/trimmedVideo_xxxx.mp4
+                            Log.d(TAG, "mixVideoAndAudio---onSuccess");
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            e.printStackTrace();
+                            Log.e(TAG, "mixVideo---onError:" + e.toString());
+                            NormalProgressDialog.stopLoading();
+                            Toast.makeText(TrimVideoActivity.this, "视频混音失败", Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            Log.d(TAG, "mixVideo---onComplete: 视频混音结束");
+                            Toast.makeText(TrimVideoActivity.this, "混音完成", Toast.LENGTH_SHORT).show();
+                            finish();
+                            startActivity(TrimVideoActivity.this, mVideoPath);
+                        }
+                    });
+            mVideoPath = outPutPath;
+
+            //再将mVideoPath赋值为生成的outputPath
+            /*String testVideo = "/storage/emulated/0/Movies/王者荣耀高光时刻/20210507224914_0.mp4";
+            RemixAudioUtil.mix("/storage/emulated/0/Android/2021_5_10.mp4",
+                    "/storage/emulated/0/netease/cloudmusic/Music/电鸟个灯泡 - 梦灯笼.mp3",
+                     "/storage/emulated/0/Android/test.mp4",0,3000000, 20, 20);*/
+
+        }
+    }
+
+    private void onRemixStatusChanged() {
+        if (mRemixStatus) {
+            mMusicSeekBar.setEnabled(true);
+            mVideoSeekBar.setEnabled(true);
+        }
+    }
+
+    @OnClick({R.id.ll_trim_tab, R.id.ll_effect_tab, R.id.ll_remix_tab})
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.ll_trim_tab: //裁切tab
                 mViewTrimIndicator.setVisibility(View.VISIBLE);
-                mViewEffectIndicator.setVisibility(View.GONE);
                 mLlTrimContainer.setVisibility(View.VISIBLE);
-                mHsvEffect.setVisibility(View.GONE);
+                hideFilter();
+                hideRemix();
                 break;
             case R.id.ll_effect_tab: //滤镜tab
-                mViewTrimIndicator.setVisibility(View.GONE);
                 mViewEffectIndicator.setVisibility(View.VISIBLE);
-                mLlTrimContainer.setVisibility(View.GONE);
                 mHsvEffect.setVisibility(View.VISIBLE);
+                hideTrim();
+                hideRemix();
                 break;
+            case R.id.ll_remix_tab: //混音tab
+                mViewRemixIndicator.setVisibility(View.VISIBLE);
+                mRemixPanel.setVisibility(View.VISIBLE);
+                hideTrim();
+                hideFilter();
         }
+    }
+
+    private void hideTrim() {
+        mViewTrimIndicator.setVisibility(View.GONE);
+        mLlTrimContainer.setVisibility(View.GONE);
+    }
+
+    private void hideFilter() {
+        mViewEffectIndicator.setVisibility(View.GONE);
+        mHsvEffect.setVisibility(View.GONE);
+    }
+
+    private void hideRemix() {
+        mViewRemixIndicator.setVisibility(View.GONE);
+        mRemixPanel.setVisibility(View.GONE);
     }
 
     /**
@@ -413,6 +544,12 @@ public class TrimVideoActivity extends VideoBaseActivity {
         }
     }
 
+    private void chooseRemixMusic() {
+        Intent intent= new Intent(Intent.ACTION_PICK, null);
+        intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "audio/*");
+        startActivityForResult(intent, 1);
+    }
+
     /**
      * 视频裁剪
      */
@@ -461,8 +598,20 @@ public class TrimVideoActivity extends VideoBaseActivity {
 
                     @Override
                     public void onComplete() {
+                        new Thread(new LogVideoCount()).start();
                     }
                 });
+    }
+
+    public class LogVideoCount implements Runnable {
+        @Override
+        public void run() {
+            String username = SPUtils.getString("userName", "",CommonUtil.context());
+            if (!TextUtils.isEmpty(username)) {
+                String attr = "?username=" + username;
+                String infoString = WebServiceGet.executeHttpGet("VideoCountServlet", attr);//获取服务器返回的数据
+            }
+        }
     }
 
     private void startMediaCodec(String srcPath) {
@@ -832,5 +981,27 @@ public class TrimVideoActivity extends VideoBaseActivity {
             VideoUtil.deleteFile(new File(trimmedDirPath));
         }
         super.onDestroy();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode == Activity.RESULT_OK) {//是否选择，没选择就不会继续
+            Uri uri = data.getData();//得到uri，后面就是将uri转化成file的过程。
+            String[] projection = {MediaStore.Audio.Media.DATA};
+            Cursor actualAudioCursor = getContentResolver().query(uri, projection, null, null, null);
+            int actualAudioColumnIndex = actualAudioCursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA);
+            actualAudioCursor.moveToFirst();
+            String audioPath = actualAudioCursor.getString(actualAudioColumnIndex);
+            Log.d(TAG, "拿到的背景音乐的地址是：" + audioPath);
+            if (!TextUtils.isEmpty(audioPath)) {
+                mRemixStatus = true;
+                mBgmPath = audioPath;
+                onRemixStatusChanged();
+            }
+            File file = new File(audioPath);
+            Toast.makeText(TrimVideoActivity.this, file.toString(), Toast.LENGTH_SHORT).show();
+        }
     }
 }

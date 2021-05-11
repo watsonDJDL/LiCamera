@@ -1,8 +1,10 @@
 package com.linfeng.licamera.camera;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
+import android.app.AlertDialog;
+import android.media.Image;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
@@ -13,16 +15,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.linfeng.licamera.camera.tab.CameraTabAdapter;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BaseFragment;
 import com.linfeng.licamera.camera.frame.FramePresenter;
-import com.linfeng.licamera.imageEditor.view.image.easing.Linear;
-
-import org.w3c.dom.Text;
+import com.linfeng.licamera.login.WebServiceGet;
+import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.util.SPUtils;
 
 import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_9_16;
 
@@ -36,6 +36,7 @@ public class CameraFragment extends BaseFragment {
   private TextView mFrameSwitchBtn;
   private RecyclerView mCameraTabRecyclerView;
   private TextView mLoginView;
+  private ImageView mStatisticBtn;
 
   public CameraFragment() {
     mCameraPresenter = new CameraPresenter(this);
@@ -75,6 +76,39 @@ public class CameraFragment extends BaseFragment {
     mFramePresenter.onFrameStatusChanged(FRAME_9_16);
     mLoginView = view.findViewById(R.id.login);
     mLoginView.setOnClickListener(v -> mCameraPresenter.onLoginBtnClick());
+    mStatisticBtn = view.findViewById(R.id.statistic_btn);
+    mStatisticBtn.setOnClickListener( v -> new Thread(new QueryUsageInfo()).start());
+    mStatisticBtn.setVisibility(View.GONE);
+    if (SPUtils.getBoolean("hasLogin", false, CommonUtil.context())) {
+      mLoginView.setVisibility(View.GONE);
+      mStatisticBtn.setVisibility(View.VISIBLE);
+    }
+    ImageView albumEntry = view.findViewById(R.id.album_entry);
+    albumEntry.setOnClickListener(v -> mCameraPresenter.onAlbumEntryBtnClick());
+    ImageView videoEntry = view.findViewById(R.id.video_entry);
+    videoEntry.setOnClickListener(v -> mCameraPresenter.onVideoEntryBtnClick());
+  }
+
+  private void showUsageStatistic(String content) {
+    AlertDialog.Builder dialog = new AlertDialog.Builder(getContext());
+    dialog.setTitle("创作统计");
+    dialog.setMessage(content);
+    dialog.show();
+  }
+
+  //后面放到presenter里面去
+  public class QueryUsageInfo implements Runnable {
+    @Override
+    public void run() {
+      String username = SPUtils.getString("userName", "",CommonUtil.context());
+      if (!TextUtils.isEmpty(username)) {
+        String attr = "?username=" + username;
+        String infoString = WebServiceGet.executeHttpGet("UsageInfoServlet", attr);//获取服务器返回的数据
+        String[] usage = infoString.split(",");
+        String message = "你已经在LiCamera上"  + "\n" + "创作图片：" + usage[0] + "  张" + "\n" + "创作视频：" + usage[1] + "  部" + "\n";
+        getActivity().runOnUiThread(() -> showUsageStatistic(message));
+      }
+    }
   }
 
   @Override
@@ -103,6 +137,9 @@ public class CameraFragment extends BaseFragment {
 
   public void onLoginSuccessful() {
     mLoginView.setVisibility(View.GONE);
+    mStatisticBtn.setVisibility(View.VISIBLE);
+    SPUtils.putBoolean("hasLogin", true, CommonUtil.context());
+
   }
 
   /**

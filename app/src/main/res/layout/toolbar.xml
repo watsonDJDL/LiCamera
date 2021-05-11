@@ -22,6 +22,15 @@
     android:layout_gravity="center"
     android:textSize="21sp"/>
 
+  <ImageView
+      android:id="@+id/trim_video_btn"
+      android:layout_width="30dp"
+      android:layout_height="30dp"
+      android:layout_gravity="right"
+      android:src="@mipmap/save_video"
+      android:layout_marginRight="15dp"/>
+
+
   <TextView
     android:id="@+id/toolbar_menu_title"
     style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"

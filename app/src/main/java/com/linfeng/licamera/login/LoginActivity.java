@@ -12,6 +12,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.linfeng.licamera.R;
+import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.util.SPUtils;
+import com.linfeng.licamera.videoEditor.TrimVideoActivity;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
     private final static int RESULT_OK = 1;
@@ -19,6 +22,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private EditText password;
     private Button login;
     private TextView register;
+    private String mUserName;
     //提示框
     private ProgressDialog dialog;
     //服务器返回的数据
@@ -66,7 +70,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public class MyThread implements Runnable {
         @Override
         public void run() {
-            infoString = WebServiceGet.executeHttpGet(username.getText().toString(), password.getText().toString(), "LoginServlet");//获取服务器返回的数据
+            mUserName = username.getText().toString();
+            String attr = "?username=" + mUserName + "&password=" + password.getText().toString();
+            infoString = WebServiceGet.executeHttpGet("LoginServlet", attr);//获取服务器返回的数据
 
             //更新UI，使用runOnUiThread()方法
             showResponse(infoString);
@@ -82,6 +88,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Toast.makeText(LoginActivity.this, "登陆失败！", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(LoginActivity.this, "登陆成功！", Toast.LENGTH_SHORT).show();
+                    SPUtils.putString("userName", mUserName, CommonUtil.context());
                     Intent intent = new Intent();
                     LoginActivity.this.setResult(RESULT_OK,intent);
                     finish();

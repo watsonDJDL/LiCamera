@@ -3,13 +3,13 @@ package com.linfeng.licamera.camera;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentTransaction;
 
-import com.linfeng.licamera.MainActivity;
 import com.linfeng.licamera.camera.tab.CameraTabEntity;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BasePresenter;
@@ -17,7 +17,6 @@ import com.linfeng.licamera.camera.tab.CameraTabId;
 import com.linfeng.licamera.camera.tab.CameraTabPresenter;
 import com.linfeng.licamera.login.LoginActivity;
 import com.linfeng.licamera.picture.PictureFragment;
-import com.linfeng.licamera.util.CommonUtil;
 import com.linfeng.licamera.videoEditor.TrimVideoActivity;
 
 import java.util.List;
@@ -27,12 +26,15 @@ import io.reactivex.rxjava3.core.Observable;
 public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptureListener {
   private final static String TAG = "CameraPresenter";
   private final static int REQUEST_FOR_LOGIN = 1;
+  private final static int REQUEST_FOR_ALBUM = 2;
+  private final static int REQUEST_FOR_VIDEO = 3;
   private CameraViewGroup mCameraViewGroup;
   //控制相机
   private CameraHelper mCameraHelper;
   private CameraFragment mFragment;
   private boolean mIsRecording;
   private float mZoom = 1f;
+  private Activity activity;
 
   private CameraTabPresenter mCameraTabPresenter;//后面单独抽出来做addPresenter
 
@@ -44,6 +46,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   public void onCreate() {
     mCameraTabPresenter = new CameraTabPresenter(mFragment);
     mCameraTabPresenter.onCreate();
+    activity = mFragment.getActivity();
   }
 
   @Override
@@ -164,9 +167,21 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   }
 
   public void onLoginBtnClick() {
-    Activity context = mFragment.getActivity();
-    Intent intent = new Intent(context, LoginActivity.class);
-    context.startActivityForResult(intent,REQUEST_FOR_LOGIN);
+
+    Intent intent = new Intent(activity, LoginActivity.class);
+    activity.startActivityForResult(intent,REQUEST_FOR_LOGIN);
+  }
+
+  public void onAlbumEntryBtnClick() {
+    Intent intent= new Intent(Intent.ACTION_PICK, null);
+    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+    activity.startActivityForResult(intent, REQUEST_FOR_ALBUM);
+  }
+
+  public void onVideoEntryBtnClick() {
+    Intent intent= new Intent(Intent.ACTION_PICK, null);
+    intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "video/*");
+    activity.startActivityForResult(intent, REQUEST_FOR_VIDEO);
   }
 
   public void onLoginSuccessful() {
