@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.fragment.app.FragmentTransaction;
 
+import com.linfeng.licamera.camera.frame.FramePresenter;
 import com.linfeng.licamera.camera.tab.CameraTabEntity;
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BasePresenter;
@@ -17,11 +18,14 @@ import com.linfeng.licamera.camera.tab.CameraTabId;
 import com.linfeng.licamera.camera.tab.CameraTabPresenter;
 import com.linfeng.licamera.login.LoginActivity;
 import com.linfeng.licamera.picture.PictureFragment;
+import com.linfeng.licamera.util.FileUtil;
 import com.linfeng.licamera.videoEditor.TrimVideoActivity;
 
 import java.util.List;
 
 import io.reactivex.rxjava3.core.Observable;
+
+import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_9_16;
 
 public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptureListener {
   private final static String TAG = "CameraPresenter";
@@ -37,6 +41,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   private Activity activity;
 
   private CameraTabPresenter mCameraTabPresenter;//后面单独抽出来做addPresenter
+  private FramePresenter mFramePresenter;
 
   public CameraPresenter(CameraFragment cameraFragment) {
     mFragment = cameraFragment;
@@ -45,7 +50,9 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   @Override
   public void onCreate() {
     mCameraTabPresenter = new CameraTabPresenter(mFragment);
+    mFramePresenter = new FramePresenter(mFragment);
     mCameraTabPresenter.onCreate();
+    mFramePresenter.onCreate();
     activity = mFragment.getActivity();
   }
 
@@ -56,6 +63,8 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
     assert mCameraHelper != null;
     mCameraHelper.addOnImageAvailableListener(this);
     mCameraTabPresenter.onViewCreated(view);
+    mFramePresenter.onViewCreated(view);
+    mFramePresenter.onFrameStatusChanged(FRAME_9_16);
   }
 
   @Override
@@ -64,6 +73,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
       setCameraFocusHandler();
     }
     mCameraTabPresenter.onResume();
+    mFramePresenter.onResume();
   }
 
   public void onPause() {
@@ -74,6 +84,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   public void onDestroyView() {
     mCameraHelper.removeOnImageAvailableListener(this);
     mCameraTabPresenter.onDestroyView();
+    mFramePresenter.onDestroyView();
   }
 
   public void onCameraSwitch() {
@@ -122,7 +133,7 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   public void stopRecord() {
       mCameraHelper.stopRecord();
     Toast.makeText(mFragment.getContext(),"结束录制", Toast.LENGTH_SHORT).show();
-      TrimVideoActivity.startActivity(mFragment.getContext(), mCameraHelper.getOutputMediaFile());
+      TrimVideoActivity.startActivity(mFragment.getContext(), FileUtil.getOutputMediaFile());
   }
 
   private void setCameraFocusHandler() {
@@ -167,7 +178,6 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
   }
 
   public void onLoginBtnClick() {
-
     Intent intent = new Intent(activity, LoginActivity.class);
     activity.startActivityForResult(intent,REQUEST_FOR_LOGIN);
   }
@@ -184,7 +194,8 @@ public class CameraPresenter implements BasePresenter, CameraHelper.OnImageCaptu
     activity.startActivityForResult(intent, REQUEST_FOR_VIDEO);
   }
 
-  public void onLoginSuccessful() {
 
+  public void onFrameBtnClick() {
+    mFramePresenter.onFrameBtnClick();
   }
 }

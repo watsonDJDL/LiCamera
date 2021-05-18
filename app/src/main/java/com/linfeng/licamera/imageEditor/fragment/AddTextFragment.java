@@ -120,7 +120,7 @@ public class AddTextFragment extends BaseEditFragment implements TextWatcher{
                 }
             });
         }
-    }//end inner class
+    }
 
     /**
      * 修改字体颜色
@@ -152,7 +152,7 @@ public class AddTextFragment extends BaseEditFragment implements TextWatcher{
         public void onClick(View v) {
             backToMain();
         }
-    }// end class
+    }
 
     /**
      * 返回主菜单
@@ -224,7 +224,7 @@ public class AddTextFragment extends BaseEditFragment implements TextWatcher{
             activity.changeMainBitmap(result , true);
             backToMain();
         }
-    }//end inner class
+    }
 
     @Override
     public void onDestroy() {

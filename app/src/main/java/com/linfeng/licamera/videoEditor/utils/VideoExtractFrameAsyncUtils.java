@@ -32,17 +32,18 @@ public class VideoExtractFrameAsyncUtils {
                 break;
             }
             long time = startPosition + interval * i;
+            //如果到了该抽的最后一帧时间隔小于1s则抽最后的时间戳的一帧，如果大于1s则抽最后时间戳前0.8s的一帧
             if (i == thumbnailsCount - 1) {
                 if (interval > 1000) {
                     String path = extractFrame(metadataRetriever, endPosition - 800, OutPutFileDirPath);
-                    sendAPic(path, endPosition - 800);
+                    sendPic(path, endPosition - 800);
                 } else {
                     String path = extractFrame(metadataRetriever, endPosition, OutPutFileDirPath);
-                    sendAPic(path, endPosition);
+                    sendPic(path, endPosition);
                 }
             } else {
                 String path = extractFrame(metadataRetriever, time, OutPutFileDirPath);
-                sendAPic(path, time);
+                sendPic(path, time);
             }
         }
         metadataRetriever.release();
@@ -54,7 +55,7 @@ public class VideoExtractFrameAsyncUtils {
      * @param path path
      * @param time time
      */
-    private void sendAPic(String path, long time) {
+    private void sendPic(String path, long time) {
         VideoEditInfo info = new VideoEditInfo();
         info.path = path;
         info.time = time;

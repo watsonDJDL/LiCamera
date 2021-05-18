@@ -291,7 +291,6 @@ public class TrimVideoActivity extends VideoBaseActivity {
 
                         @Override
                         public void onNext(String outputPath) {
-                            // /storage/emulated/0/Android/data/com.linfeng.licamera/files/small_video/trimmedVideo_xxxx.mp4
                             Log.d(TAG, "mixVideoAndAudio---onSuccess");
                         }
 
@@ -312,12 +311,6 @@ public class TrimVideoActivity extends VideoBaseActivity {
                         }
                     });
             mVideoPath = outPutPath;
-
-            //再将mVideoPath赋值为生成的outputPath
-            /*String testVideo = "/storage/emulated/0/Movies/王者荣耀高光时刻/20210507224914_0.mp4";
-            RemixAudioUtil.mix("/storage/emulated/0/Android/2021_5_10.mp4",
-                    "/storage/emulated/0/netease/cloudmusic/Music/电鸟个灯泡 - 梦灯笼.mp3",
-                     "/storage/emulated/0/Android/test.mp4",0,3000000, 20, 20);*/
 
         }
     }
@@ -432,7 +425,6 @@ public class TrimVideoActivity extends VideoBaseActivity {
     }
 
     private void initEditVideo() {
-        //for video edit
         long startPosition = 0;
         long endPosition = duration;
         int thumbnailsCount;
@@ -639,7 +631,8 @@ public class TrimVideoActivity extends VideoBaseActivity {
                     public void onCompleted() {
                         Log.d(TAG, "filterVideo---onCompleted");
                         runOnUiThread(() -> {
-                            compressVideo(outputPath);
+                            showResultVideo(outputPath);
+                            //compressVideo(outputPath);
                         });
                     }
 
@@ -727,6 +720,25 @@ public class TrimVideoActivity extends VideoBaseActivity {
                     public void onComplete() {
                     }
                 });
+    }
+
+    private void showResultVideo(String outputPath) {
+        //获取视频第一帧图片
+        mExtractVideoInfoUtil = new ExtractVideoInfoUtil(outputPath);
+        Bitmap bitmap = mExtractVideoInfoUtil.extractFrame();
+        String firstFrame = FileUtil.getBasePath();
+        BitmapUtils.saveBitmap(bitmap, firstFrame + File.separator + "small_video");
+        if (bitmap != null && !bitmap.isRecycled()) {
+            bitmap.recycle();
+            bitmap = null;
+        }
+        NormalProgressDialog.stopLoading();
+        String newPath =VideoUtil.getTrimmedVideoPath(this, "recordVideo/trimmedVideo",
+                "trimmedVideo_");
+        FileUtil.copyFile(outputPath, newPath);
+
+        VideoPreviewActivity.startActivity(TrimVideoActivity.this, outputPath, firstFrame);
+        finish();
     }
 
     private boolean isOverScaledTouchSlop;

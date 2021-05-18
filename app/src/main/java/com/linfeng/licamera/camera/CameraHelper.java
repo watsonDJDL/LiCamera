@@ -58,6 +58,7 @@ import com.linfeng.licamera.util.CollectionUtil;
 import com.linfeng.licamera.camera.frame.FrameMode;
 import com.linfeng.licamera.LiApplication;
 import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.util.FileUtil;
 import com.linfeng.licamera.videoEditor.TrimVideoActivity;
 
 public class CameraHelper {
@@ -387,7 +388,7 @@ public class CameraHelper {
             .getPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), mWidth, mHeight);
     mMediaRecorder.setVideoSize(previewSize.getWidth(), previewSize.getHeight());
     mMediaRecorder.setVideoFrameRate(30);
-    String mNextVideoAbsolutePath = getOutputMediaFile();
+    String mNextVideoAbsolutePath = FileUtil.getOutputMediaFile();
     if (mNextVideoAbsolutePath != null) {
       mMediaRecorder.setOutputFile(mNextVideoAbsolutePath);
     }
@@ -400,48 +401,6 @@ public class CameraHelper {
     } catch (IOException e) {
       e.printStackTrace();
     }
-  }
-
-  /*
-   * 获取手机外部存储路径
-   * */
-  private String getOutputFile() {
-    File mediaFile = null;
-    boolean OutputExist = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
-    if (OutputExist) {
-      mediaFile = LiApplication.getContext().getExternalCacheDir();
-      return mediaFile.toString();
-    }
-    return null;
-  }
-
-  /*
-   * 获取录制视频的日期 作为存储文件路径一部分
-   * */
-  private String getDate() {
-    Log.d(TAG, "获取录制视频的日期 ");
-    Calendar ca = Calendar.getInstance();
-    int year = ca.get(Calendar.YEAR);           // 获取年份
-    int month = ca.get(Calendar.MONTH);         // 获取月份
-    int day = ca.get(Calendar.DATE);            // 获取日
-    String date = "" + year + "_" + (month + 1) + "_" + day;
-    return date;
-  }
-
-  /*
-   *创建视频存储文件夹 录制好的视频存储在手机外部存储中 以录像时间+mp4格式命名
-   * */
-  public String getOutputMediaFile() {
-    Log.d(TAG, "获取视频存储的位置 ");
-    String mediaPath = getOutputFile();
-    if (mediaPath != null) {
-      File mediaFile = new File(mediaPath + "/recordVideo");
-      if (!mediaFile.exists()) {
-        mediaFile.mkdirs();
-      }
-      return mediaFile.getAbsolutePath() + File.separator + getDate() + ".mp4";
-    }
-    return null;
   }
 
   private void initTextureView() {
@@ -646,13 +605,11 @@ public class CameraHelper {
     }
   }
 
-
-
   /**
    * 旋转图片
    * @return 旋转后图片（只是修改了Bitmap对象，没有修改图片文件)
    */
-  public Bitmap rotateBitmap(Bitmap bmp) {
+  private Bitmap rotateBitmap(Bitmap bmp) {
     Matrix matrix = new Matrix();
     matrix.postRotate(90);
     Bitmap rotatedBitMap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
@@ -663,11 +620,10 @@ public class CameraHelper {
     return true;
   }
 
-  public void onCameraFrameChanged(FrameMode frameMode) {
+  public void changeCameraFrame(FrameMode frameMode) {
     closeCaptureSession();
     mHeight = CameraUtils.getCameraViewHeight(frameMode,mWidth);
     createCameraPreview();
-
   }
 
   public int getWidth() {

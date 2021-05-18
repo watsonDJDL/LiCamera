@@ -6,7 +6,6 @@ import android.view.ViewGroup;
 import com.linfeng.licamera.base.BasePresenter;
 import com.linfeng.licamera.camera.CameraFragment;
 import com.linfeng.licamera.camera.CameraHelper;
-import com.linfeng.licamera.camera.frame.FrameMode;
 import com.linfeng.licamera.util.CommonUtil;
 
 import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_3_4;
@@ -49,7 +48,7 @@ public class FramePresenter implements BasePresenter {
         mCurrentMode = mCurrentMode.getNextMode();
         onFrameStatusChanged(mCurrentMode);
         CameraHelper cameraHelper= CameraHelper.getInstance();
-        cameraHelper.onCameraFrameChanged(mCurrentMode);
+        cameraHelper.changeCameraFrame(mCurrentMode);
     }
 
     public void onFrameStatusChanged(FrameMode mode) {

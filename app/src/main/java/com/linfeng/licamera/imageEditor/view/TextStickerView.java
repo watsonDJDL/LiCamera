@@ -226,7 +226,7 @@ public class TextStickerView extends View{
             }
 
             CommonUtil.rectAddV(mTextRect, tempRect, 0, charMinHeight);
-        }//end for i
+        }
 
         mTextRect.offset(x, y);
 
@@ -247,7 +247,7 @@ public class TextStickerView extends View{
         for (int i = 0; i < mTextContents.size(); i++) {
             canvas.drawText(mTextContents.get(i), x, draw_text_y, mPaint);
             draw_text_y += text_height;
-        }//end for i
+        }
         canvas.restore();
     }
 
@@ -278,13 +278,13 @@ public class TextStickerView extends View{
                 } else {
                     isShowHelpBox = false;
                     invalidate();
-                }// end if
+                }
 
                 if (mCurrentMode == DELETE_MODE) {// 删除选定贴图
                     mCurrentMode = IDLE_MODE;// 返回空闲状态
                     clearTextContent();
                     invalidate();
-                }// end if
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 ret = true;
@@ -317,7 +317,7 @@ public class TextStickerView extends View{
                 ret = false;
                 mCurrentMode = IDLE_MODE;
                 break;
-        }// end switch
+        }
 
         return ret;
     }

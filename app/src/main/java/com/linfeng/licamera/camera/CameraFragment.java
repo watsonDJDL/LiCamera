@@ -29,18 +29,15 @@ import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_9_16;
 public class CameraFragment extends BaseFragment {
   private static final String TAG = "CameraFragment";
   private CameraPresenter mCameraPresenter;
-  private FramePresenter mFramePresenter;
   private CameraViewGroup mCameraViewGroup;
   private AppCompatImageButton mCameraBtn;
   private ImageView mSwitchBtn;
   private TextView mFrameSwitchBtn;
-  private RecyclerView mCameraTabRecyclerView;
   private TextView mLoginView;
   private ImageView mStatisticBtn;
 
   public CameraFragment() {
     mCameraPresenter = new CameraPresenter(this);
-    mFramePresenter = new FramePresenter(this);
   }
 
   @Override
@@ -59,8 +56,7 @@ public class CameraFragment extends BaseFragment {
   @Override
   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
     super.onViewCreated(view, savedInstanceState);
-    mCameraPresenter.onViewCreated(view);
-    mFramePresenter.onViewCreated(view);
+
 
     mCameraViewGroup = view.findViewById(R.id.camera_view);
     TextureView textureView = mCameraViewGroup.getTextureView();
@@ -73,7 +69,7 @@ public class CameraFragment extends BaseFragment {
     mFrameSwitchBtn = view.findViewById(R.id.frame_btn);
 
     setViewsClickListener();
-    mFramePresenter.onFrameStatusChanged(FRAME_9_16);
+    mCameraPresenter.onViewCreated(view);
     mLoginView = view.findViewById(R.id.login);
     mLoginView.setOnClickListener(v -> mCameraPresenter.onLoginBtnClick());
     mStatisticBtn = view.findViewById(R.id.statistic_btn);
@@ -115,7 +111,6 @@ public class CameraFragment extends BaseFragment {
   public void onResume() {
     super.onResume();
     mCameraPresenter.onResume();
-    mFramePresenter.onResume();
   }
 
   @Override
@@ -128,7 +123,6 @@ public class CameraFragment extends BaseFragment {
   public void onDestroyView() {
     super.onDestroyView();
     mCameraPresenter.onDestroyView();
-    mFramePresenter.onDestroyView();
   }
 
   public CameraViewGroup getCameraViewGroup() {
@@ -154,7 +148,7 @@ public class CameraFragment extends BaseFragment {
       mCameraBtn.setOnClickListener(v -> mCameraPresenter.onCameraBtnClick());
     }
     if (mFrameSwitchBtn != null) {
-      mFrameSwitchBtn.setOnClickListener(v -> mFramePresenter.onFrameBtnClick());
+      mFrameSwitchBtn.setOnClickListener(v -> mCameraPresenter.onFrameBtnClick());
     }
   }
 }

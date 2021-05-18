@@ -25,10 +25,6 @@ import com.linfeng.licamera.imageEditor.view.CropImageView;
 import com.linfeng.licamera.imageEditor.view.image.ImageViewTouchBase;
 import com.linfeng.licamera.util.Matrix3;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,11 +42,8 @@ public class CropFragment extends BaseEditFragment {
         dataList.add(new RatioItem("1:1", 1f));
         dataList.add(new RatioItem("1:2", 1 / 2f));
         dataList.add(new RatioItem("1:3", 1 / 3f));
-        dataList.add(new RatioItem("2:3", 2 / 3f));
         dataList.add(new RatioItem("3:4", 3 / 4f));
         dataList.add(new RatioItem("2:1", 2f));
-        dataList.add(new RatioItem("3:1", 3f));
-        dataList.add(new RatioItem("3:2", 3 / 2f));
         dataList.add(new RatioItem("4:3", 4 / 3f));
     }
     private List<TextView> textViewList = new ArrayList<TextView>();
@@ -58,7 +51,7 @@ public class CropFragment extends BaseEditFragment {
     public static int SELECTED_COLOR = Color.YELLOW;
     public static int UNSELECTED_COLOR = Color.WHITE;
     private CropRationClick mCropRationClick = new CropRationClick();
-    public TextView selctedTextView;
+    public TextView selectedTextView;
 
     public static CropFragment newInstance() {
         CropFragment fragment = new CropFragment();
@@ -89,13 +82,13 @@ public class CropFragment extends BaseEditFragment {
             ratioList.addView(text, params);
             text.setTag(i);
             if (i == 0) {
-                selctedTextView = text;
+                selectedTextView = text;
             }
             dataList.get(i).setIndex(i);
             text.setTag(dataList.get(i));
             text.setOnClickListener(mCropRationClick);
         }
-        selctedTextView.setTextColor(SELECTED_COLOR);
+        selectedTextView.setTextColor(SELECTED_COLOR);
     }
 
     /**
@@ -105,10 +98,10 @@ public class CropFragment extends BaseEditFragment {
         @Override
         public void onClick(View v) {
             TextView curTextView = (TextView) v;
-            selctedTextView.setTextColor(UNSELECTED_COLOR);
+            selectedTextView.setTextColor(UNSELECTED_COLOR);
             RatioItem dataItem = (RatioItem) v.getTag();
-            selctedTextView = curTextView;
-            selctedTextView.setTextColor(SELECTED_COLOR);
+            selectedTextView = curTextView;
+            selectedTextView.setTextColor(SELECTED_COLOR);
             mCropPanel.setRatioCropRect(activity.mainImage.getBitmapRect(), dataItem.getRatio());
         }
     }
@@ -156,8 +149,8 @@ public class CropFragment extends BaseEditFragment {
         mCropPanel.setVisibility(View.GONE);
         activity.mainImage.setScaleEnabled(true);// 恢复缩放功能
         activity.bottomGallery.setCurrentItem(0);
-        if (selctedTextView != null) {
-            selctedTextView.setTextColor(UNSELECTED_COLOR);
+        if (selectedTextView != null) {
+            selectedTextView.setTextColor(UNSELECTED_COLOR);
         }
         mCropPanel.setRatioCropRect(activity.mainImage.getBitmapRect(), -1);
         activity.bannerFlipper.showPrevious();
