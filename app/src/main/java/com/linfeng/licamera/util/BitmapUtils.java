@@ -541,4 +541,32 @@ public class BitmapUtils {
 
         return to.toString();
     }
+
+    /**
+     * 获取图片的旋转角度。
+     * 只能通过原始文件获取，如果已经进行过bitmap操作无法获取。
+     */
+    public static int getRotateDegree(String path) {
+        int result = 0;
+        try {
+            ExifInterface exif = new ExifInterface(path);
+            int orientation = exif.getAttributeInt(
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.ORIENTATION_NORMAL);
+            switch (orientation) {
+                case ExifInterface.ORIENTATION_ROTATE_90:
+                    result = 90;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_180:
+                    result = 180;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    result = 270;
+                    break;
+            }
+        } catch (IOException ignore) {
+            return 0;
+        }
+        return result;
+    }
 }

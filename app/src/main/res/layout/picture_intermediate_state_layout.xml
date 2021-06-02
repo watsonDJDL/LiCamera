@@ -20,17 +20,8 @@
             android:src="@mipmap/character_recognition_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@id/picture_recognition_btn"/>
+            app:layout_constraintRight_toRightOf="parent"/>
 
-        <ImageView
-            android:id="@+id/picture_recognition_btn"
-            android:layout_width="45dp"
-            android:layout_height="45dp"
-            android:background="@color/transparent"
-            android:src="@mipmap/picture_recognition_icon"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/character_recognition_btn"
-            app:layout_constraintRight_toRightOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

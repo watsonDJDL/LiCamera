@@ -40,8 +40,10 @@ import com.linfeng.licamera.imageEditor.widget.RedoUndoController;
 import com.linfeng.licamera.login.WebServiceGet;
 import com.linfeng.licamera.util.BitmapUtils;
 import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.util.Constant;
 import com.linfeng.licamera.util.FileUtil;
 import com.linfeng.licamera.util.SPUtils;
+import com.linfeng.licamera.util.StatisticUtil;
 
 public class EditImageActivity  extends EditorBaseActivity{
     public static final String FILE_PATH = "file_path";
@@ -354,7 +356,7 @@ public class EditImageActivity  extends EditorBaseActivity{
             } else {
                 doSaveImage();
             }
-            new Thread(new LogPhotoCount()).start();
+            StatisticUtil.updateUserPhotoCount();
         }
     }
 
@@ -368,17 +370,6 @@ public class EditImageActivity  extends EditorBaseActivity{
 
         mSaveImageTask = new SaveImageTask();
         mSaveImageTask.execute(mainBitmap);
-    }
-
-    public class LogPhotoCount implements Runnable {
-        @Override
-        public void run() {
-            String username = SPUtils.getString("userName", "",CommonUtil.context());
-            if (!TextUtils.isEmpty(username)) {
-                String attr = "?username=" + username;
-                String infoString = WebServiceGet.executeHttpGet("PhotoCountServlet", attr);//获取服务器返回的数据
-            }
-        }
     }
 
     /**

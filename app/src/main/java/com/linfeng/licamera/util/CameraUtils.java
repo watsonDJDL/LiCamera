@@ -29,8 +29,14 @@ public class CameraUtils {
       height = temp;
     }
     for (Size option : sizes) {
-      if (option.getWidth() >= width && option.getHeight() >= height) {
-        collectorSizes.add(option);
+      if (width == height){
+        if(option.getHeight() == option.getWidth()) {
+          collectorSizes.add(option);
+       }
+      } else {
+        if (option.getWidth() >= width && option.getHeight() >= height) {
+          collectorSizes.add(option);
+        }
       }
     }
     if (collectorSizes.size() > 0) {

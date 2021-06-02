@@ -152,7 +152,7 @@ public class FileUtil {
     /*
      * 获取手机外部存储路径
      * */
-    private static String getOutputFile() {
+    public static String getOutputFile() {
         File mediaFile = null;
         boolean OutputExist = Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED);
         if (OutputExist) {

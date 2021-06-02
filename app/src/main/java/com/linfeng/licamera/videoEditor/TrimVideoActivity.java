@@ -40,11 +40,12 @@ import com.linfeng.licamera.R;
 import com.linfeng.licamera.login.WebServiceGet;
 import com.linfeng.licamera.util.BitmapUtils;
 import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.util.Constant;
 import com.linfeng.licamera.util.FileUtil;
 import com.linfeng.licamera.util.SPUtils;
+import com.linfeng.licamera.util.StatisticUtil;
 import com.linfeng.licamera.videoEditor.base.VideoBaseActivity;
 import com.linfeng.licamera.videoEditor.composer.Mp4Composer;
-import com.linfeng.licamera.videoEditor.compression.SiliCompressor;
 import com.linfeng.licamera.videoEditor.filter.MagicFilterFactory;
 import com.linfeng.licamera.videoEditor.filter.MagicFilterType;
 import com.linfeng.licamera.videoEditor.model.FilterModel;
@@ -206,7 +207,7 @@ public class TrimVideoActivity extends VideoBaseActivity {
 
     @Override
     protected void initToolbar(ToolbarHelper toolbarHelper) {
-        toolbarHelper.setTitle("裁剪");
+        toolbarHelper.setTitle("视频剪辑");
         mTrimVideoBtn.setOnClickListener(v -> trimmerVideo());
         mChooseMusicBtn.setOnClickListener(v -> chooseRemixMusic());
     }
@@ -590,20 +591,9 @@ public class TrimVideoActivity extends VideoBaseActivity {
 
                     @Override
                     public void onComplete() {
-                        new Thread(new LogVideoCount()).start();
+                        StatisticUtil.updateUserVideoCount();
                     }
                 });
-    }
-
-    public class LogVideoCount implements Runnable {
-        @Override
-        public void run() {
-            String username = SPUtils.getString("userName", "",CommonUtil.context());
-            if (!TextUtils.isEmpty(username)) {
-                String attr = "?username=" + username;
-                String infoString = WebServiceGet.executeHttpGet("VideoCountServlet", attr);//获取服务器返回的数据
-            }
-        }
     }
 
     private void startMediaCodec(String srcPath) {
@@ -632,7 +622,6 @@ public class TrimVideoActivity extends VideoBaseActivity {
                         Log.d(TAG, "filterVideo---onCompleted");
                         runOnUiThread(() -> {
                             showResultVideo(outputPath);
-                            //compressVideo(outputPath);
                         });
                     }
 
@@ -649,77 +638,6 @@ public class TrimVideoActivity extends VideoBaseActivity {
                     }
                 })
                 .start();
-    }
-
-    /**
-     * 视频压缩
-     */
-    private void compressVideo(String srcPath) {
-        String destDirPath = VideoUtil.getTrimmedVideoDir(this, "small_video");
-        Observable.create(new ObservableOnSubscribe<String>() {
-            @Override
-            public void subscribe(ObservableEmitter<String> emitter) {
-                try {
-                    int outWidth = 0;
-                    int outHeight = 0;
-                    if (mOriginalWidth > mOriginalHeight) {
-                        //横屏
-                        outWidth = 720;
-                        outHeight = 480;
-                    } else {
-                        //竖屏
-                        outWidth = 480;
-                        outHeight = 720;
-                    }
-                    String compressedFilePath = SiliCompressor.with(TrimVideoActivity.this)
-                            .compressVideo(srcPath, destDirPath, outWidth, outHeight, 900000);
-                    emitter.onNext(compressedFilePath);
-                } catch (Exception e) {
-                    emitter.onError(e);
-                }
-                emitter.onComplete();
-            }
-        })
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new Observer<String>() {
-                    @Override
-                    public void onSubscribe(Disposable d) {
-                        subscribe(d);
-                    }
-
-                    @Override
-                    public void onNext(String outputPath) {
-                        //源路径: /storage/emulated/0/Android/data/com.kangoo.diaoyur/cache/small_video/trimmedVideo_20180514_163858.mp4
-                        //压缩路径: /storage/emulated/0/Android/data/com.kangoo.diaoyur/cache/small_video/VIDEO_20180514_163859.mp4
-                        Log.e(TAG, "compressVideo---onSuccess");
-                        //获取视频第一帧图片
-                        mExtractVideoInfoUtil = new ExtractVideoInfoUtil(outputPath);
-                        Bitmap bitmap = mExtractVideoInfoUtil.extractFrame();
-                        String firstFrame = FileUtil.getBasePath();
-                        BitmapUtils.saveBitmap(bitmap, firstFrame + File.separator + "small_video");
-                        if (bitmap != null && !bitmap.isRecycled()) {
-                            bitmap.recycle();
-                            bitmap = null;
-                        }
-                        NormalProgressDialog.stopLoading();
-
-                        VideoPreviewActivity.startActivity(TrimVideoActivity.this, outputPath, firstFrame);
-                        finish();
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        e.printStackTrace();
-                        Log.e(TAG, "compressVideo---onError:" + e.toString());
-                        NormalProgressDialog.stopLoading();
-                        Toast.makeText(TrimVideoActivity.this, "视频压缩失败", Toast.LENGTH_SHORT).show();
-                    }
-
-                    @Override
-                    public void onComplete() {
-                    }
-                });
     }
 
     private void showResultVideo(String outputPath) {

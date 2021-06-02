@@ -2,6 +2,7 @@ package com.linfeng.licamera.util;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 
 /**
  * SharedPreferences工具类
@@ -12,7 +13,7 @@ public class SPUtils {
     public static void putBoolean(String key, boolean value, Context context) {
         SharedPreferences sp = context.getSharedPreferences(NAME,
                 Context.MODE_PRIVATE);
-        sp.edit().putBoolean(key, value).commit();
+        sp.edit().putBoolean(key, value).apply();
     }
 
     public static boolean getBoolean(String key, boolean defValue, Context context) {
@@ -24,7 +25,7 @@ public class SPUtils {
     public static void putString(String key, String value, Context context) {
         SharedPreferences sp = context.getSharedPreferences(NAME,
                 Context.MODE_PRIVATE);
-        sp.edit().putString(key, value).commit();
+        sp.edit().putString(key, value).apply();
     }
 
     public static String getString(String key, String defValue, Context context) {
@@ -40,7 +41,7 @@ public class SPUtils {
     public static void putInt(String key, int value, Context context) {
         SharedPreferences sp = context.getSharedPreferences(NAME,
                 Context.MODE_PRIVATE);
-        sp.edit().putInt(key, value).commit();
+        sp.edit().putInt(key, value).apply();
     }
 
 
@@ -53,7 +54,7 @@ public class SPUtils {
     public static void putLong(String key, long value, Context context) {
         SharedPreferences sp = context.getSharedPreferences(NAME,
                 Context.MODE_PRIVATE);
-        sp.edit().putLong(key, value).commit();
+        sp.edit().putLong(key, value).apply();
     }
 
 
@@ -66,7 +67,7 @@ public class SPUtils {
     public static void remove(String key, Context context) {
         SharedPreferences sp = context.getSharedPreferences(NAME,
                 Context.MODE_PRIVATE);
-        sp.edit().remove(key).commit();
+        sp.edit().remove(key).apply();
     }
 
 }

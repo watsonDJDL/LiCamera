@@ -4,12 +4,10 @@ import static android.content.Context.CAMERA_SERVICE;
 import static android.hardware.camera2.params.SessionConfiguration.SESSION_REGULAR;
 import static android.os.Looper.getMainLooper;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.List;
 
 import android.Manifest;
@@ -37,7 +35,6 @@ import android.media.Image;
 import android.media.ImageReader;
 import android.media.MediaRecorder;
 import android.os.Build;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.DisplayMetrics;
@@ -57,9 +54,7 @@ import com.linfeng.licamera.util.CameraUtils;
 import com.linfeng.licamera.util.CollectionUtil;
 import com.linfeng.licamera.camera.frame.FrameMode;
 import com.linfeng.licamera.LiApplication;
-import com.linfeng.licamera.util.CommonUtil;
 import com.linfeng.licamera.util.FileUtil;
-import com.linfeng.licamera.videoEditor.TrimVideoActivity;
 
 public class CameraHelper {
 
@@ -74,7 +69,9 @@ public class CameraHelper {
   private String mCameraId = "1";
   private CameraCaptureSession mCaptureSession;
   private MediaRecorder mMediaRecorder;
-  private ImageReader mImageReader;
+  private ImageReader mImageReader_9_16;
+  private ImageReader mImageReader_3_4;
+  private ImageReader mImageReader_1_1;
   private CameraDevice mCameraDevice;
   private Bitmap mCurrentCaptureBitMap;
   private Handler childHandler, mainHandler;
@@ -108,8 +105,10 @@ public class CameraHelper {
 
     @Override
     public void onDisconnected(@NonNull CameraDevice camera) {
-      mCameraDevice.close();
-      mCameraDevice = null;
+      if (mCameraDevice == null) {
+        mCameraDevice.close();
+        mCameraDevice = null;
+      }
     }
 
     @Override
@@ -176,7 +175,16 @@ public class CameraHelper {
       Surface surface = new Surface(texture);
       mPreviewBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_PREVIEW);
       mPreviewBuilder.addTarget(surface);
-      mCameraDevice.createCaptureSession(Arrays.asList(surface, mImageReader.getSurface()),
+      List<Surface> surfaces = new ArrayList<Surface>(4);
+      surfaces.add(surface);
+      if ((float)mWidth / mHeight == 9f/16) {
+        surfaces.add(mImageReader_9_16.getSurface());
+      } else if ((float)mWidth / mHeight == 3f/4) {
+        surfaces.add(mImageReader_3_4.getSurface());
+      } else if (mWidth == mHeight) {
+        surfaces.add(mImageReader_1_1.getSurface());
+      }
+      mCameraDevice.createCaptureSession(surfaces,
               new CameraCaptureSession.StateCallback() {
                 @Override
                 public void onConfigured(@NonNull CameraCaptureSession session) {
@@ -439,27 +447,48 @@ public class CameraHelper {
 
   private void initImageReader() {
     Log.d(TAG, "textureView width, height: " + mWidth + "  " + mHeight);
-    mImageReader = ImageReader.newInstance(mWidth, mHeight, ImageFormat.JPEG, 1);
-    mImageReader.setOnImageAvailableListener(new ImageReader.OnImageAvailableListener() { //可以在这里处理拍照得到的临时照片 例如，写入本地
-      @Override
-      public void onImageAvailable(ImageReader reader) {
-        //mCameraDevice.close();
-        // 拿到拍照照片数据
-        mTextureView.setVisibility(View.INVISIBLE);
-        Image image = reader.acquireNextImage();
-        ByteBuffer buffer = image.getPlanes()[0].getBuffer();
-        byte[] bytes = new byte[buffer.remaining()];
-        buffer.get(bytes);//由缓冲区存入字节数组
-        Bitmap bitmap = rotateBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
-        bitmap = resizeBitMap(bitmap, mWidth, mHeight);
-        if (bitmap != null) {
-          if (!CollectionUtil.isEmpty(mImageAvailableListeners)) {
-            for (OnImageCaptureListener listener : mImageAvailableListeners) {
-              listener.onImageCapture(bitmap);
-            }
+    try {
+      CameraCharacteristics characteristics = mCameraManager.getCameraCharacteristics(mCameraId);
+      StreamConfigurationMap map =
+              characteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+      //设置三种imageReader的监听
+      Size size_9_16 =  CameraUtils
+              .getPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), mWidth, (int)(mWidth/(9f/16)));
+      mImageReader_9_16 = ImageReader.newInstance(size_9_16.getWidth(), size_9_16.getHeight(), ImageFormat.JPEG, 1);
+      setImageReaderListener(mImageReader_9_16);
+
+      Size size_3_4 =  CameraUtils
+              .getPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), mWidth, (int)(mWidth/(3f/4)));
+      mImageReader_3_4 = ImageReader.newInstance(size_3_4.getWidth(), size_3_4.getHeight(), ImageFormat.JPEG, 1);
+      setImageReaderListener(mImageReader_3_4);
+
+      Size size_1_1 =  CameraUtils
+              .getPreferredPreviewSize(map.getOutputSizes(SurfaceTexture.class), mWidth, mWidth);
+      mImageReader_1_1 = ImageReader.newInstance(size_1_1.getWidth(), size_1_1.getHeight(), ImageFormat.JPEG, 1);
+      setImageReaderListener(mImageReader_1_1);
+    } catch(CameraAccessException e) {
+      e.printStackTrace();
+    }
+  }
+
+  private void setImageReaderListener(ImageReader imageReader) {
+    imageReader.setOnImageAvailableListener(reader -> {
+      //mCameraDevice.close();
+      // 拿到拍照照片数据
+      mTextureView.setVisibility(View.INVISIBLE);
+      Image image = reader.acquireNextImage();
+      ByteBuffer buffer = image.getPlanes()[0].getBuffer();
+      byte[] bytes = new byte[buffer.remaining()];
+      buffer.get(bytes);//由缓冲区存入字节数组
+      Bitmap bitmap = rotateBitmap(BitmapFactory.decodeByteArray(bytes, 0, bytes.length));
+      bitmap = resizeBitMap(bitmap, mWidth, mHeight);
+      if (bitmap != null) {
+        if (!CollectionUtil.isEmpty(mImageAvailableListeners)) {
+          for (OnImageCaptureListener listener : mImageAvailableListeners) {
+            listener.onImageCapture(bitmap);
           }
-          mCurrentCaptureBitMap = bitmap;
         }
+        mCurrentCaptureBitMap = bitmap;
       }
     }, mainHandler);
   }
@@ -562,7 +591,14 @@ public class CameraHelper {
     try {
       captureRequestBuilder = mCameraDevice.createCaptureRequest(CameraDevice.TEMPLATE_STILL_CAPTURE);
       // 将imageReader的surface作为CaptureRequest.Builder的目标
-      captureRequestBuilder.addTarget(mImageReader.getSurface());
+      if ((float)mWidth/mHeight == 9f/16) {
+        captureRequestBuilder.addTarget(mImageReader_9_16.getSurface());
+      } else if ((float)mWidth/mHeight == 3f/4) {
+        captureRequestBuilder.addTarget(mImageReader_3_4.getSurface());
+      } else if (mWidth == mHeight) {
+        captureRequestBuilder.addTarget(mImageReader_1_1.getSurface());
+      }
+
       // 自动对焦
       captureRequestBuilder.set(CaptureRequest.CONTROL_AF_MODE, CaptureRequest.CONTROL_AF_MODE_CONTINUOUS_PICTURE);
       // 自动曝光
@@ -587,7 +623,6 @@ public class CameraHelper {
 
   public void startRecord() {
     if(mCameraDevice == null) return;
-    closeCaptureSession();
     createRecordCameraSession();
   }
 
@@ -611,7 +646,8 @@ public class CameraHelper {
    */
   private Bitmap rotateBitmap(Bitmap bmp) {
     Matrix matrix = new Matrix();
-    matrix.postRotate(90);
+    //用于前后不同的旋转
+    matrix.postRotate((Integer.parseInt(mCameraId) * (-2) + 1) * 90);
     Bitmap rotatedBitMap = Bitmap.createBitmap(bmp, 0, 0, bmp.getWidth(), bmp.getHeight(), matrix, true);
     return rotatedBitMap;
   }

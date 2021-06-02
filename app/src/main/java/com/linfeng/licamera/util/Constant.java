@@ -16,4 +16,12 @@ public class Constant {
      * Token有效期
      */
     public static final String TOKEN_VALID_PERIOD = "tokenValidPeriod";
+    /**
+     * 生产图片作品数量
+     */
+    public static final String PRODUCE_PHOTO_COUNT = "photoCount";
+    /**
+     * 生产视频作品数量
+     */
+    public static final String PRODUCE_VIDEO_COUNT = "videoCount";
 }

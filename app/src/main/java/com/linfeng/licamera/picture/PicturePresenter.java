@@ -81,15 +81,15 @@ public class PicturePresenter implements BasePresenter {
         ImageView captureView = view.findViewById(R.id.picture_view);
         captureView.setImageBitmap(mBitmap);
         ImageView characterBtn = view.findViewById(R.id.character_recognition_btn);
-        ImageView pictureBtn = view.findViewById(R.id.picture_recognition_btn);
+        //ImageView pictureBtn = view.findViewById(R.id.picture_recognition_btn);
         characterBtn.setOnClickListener(v -> {
             requestIfNoInternetPermission();
             onCharacterBtnClick();
         });
-        pictureBtn.setOnClickListener(v -> {
+        /*pictureBtn.setOnClickListener(v -> {
             requestIfNoInternetPermission();
             onPictureBtnClick();
-        });
+        });*/
         initRecognitionSDK();
     }
 

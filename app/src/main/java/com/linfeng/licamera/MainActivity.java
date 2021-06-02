@@ -25,6 +25,7 @@ import com.linfeng.licamera.camera.CameraHelper;
 import com.linfeng.licamera.camera.CameraFragment;
 import com.linfeng.licamera.imageEditor.EditImageActivity;
 import com.linfeng.licamera.picture.PictureFragment;
+import com.linfeng.licamera.util.BitmapUtils;
 import com.linfeng.licamera.videoEditor.TrimVideoActivity;
 
 public class MainActivity extends AppCompatActivity {
@@ -86,7 +87,9 @@ public class MainActivity extends AppCompatActivity {
       if (resultCode == Activity.RESULT_OK) {
         String imagePath = getFilePath(data, MediaStore.Images.Media.DATA);
         if(!TextUtils.isEmpty(imagePath)) {
+          int degree = BitmapUtils.getRotateDegree(imagePath);
           Bitmap bitmap= BitmapFactory.decodeFile(imagePath);
+          bitmap = BitmapUtils.rotateBitmap(degree, bitmap);
           startPictureFragment(bitmap);
         }
       }

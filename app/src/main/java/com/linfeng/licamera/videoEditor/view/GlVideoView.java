@@ -40,10 +40,14 @@ public class GlVideoView extends GLSurfaceView {
         GlFilter filter = new GlFilter();
         mRenderer = new VideoGlRender(filter, videoSurface);
 
+        //设置OpenGL版本
         setEGLContextClientVersion(2);
+
         setEGLConfigChooser(8, 8, 8, 8, 16, 0);
         getHolder().setFormat(PixelFormat.RGBA_8888);
+        //设置渲染器
         setRenderer(mRenderer);
+        //设置渲染模式为连续模式
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
     }
 

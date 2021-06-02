@@ -2,29 +2,27 @@ package com.linfeng.licamera.camera;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.media.Image;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.linfeng.licamera.R;
 import com.linfeng.licamera.base.BaseFragment;
-import com.linfeng.licamera.camera.frame.FramePresenter;
 import com.linfeng.licamera.login.WebServiceGet;
 import com.linfeng.licamera.util.CommonUtil;
+import com.linfeng.licamera.util.Constant;
 import com.linfeng.licamera.util.SPUtils;
-
-import static com.linfeng.licamera.camera.frame.FrameMode.FRAME_9_16;
 
 public class CameraFragment extends BaseFragment {
   private static final String TAG = "CameraFragment";
@@ -73,7 +71,7 @@ public class CameraFragment extends BaseFragment {
     mLoginView = view.findViewById(R.id.login);
     mLoginView.setOnClickListener(v -> mCameraPresenter.onLoginBtnClick());
     mStatisticBtn = view.findViewById(R.id.statistic_btn);
-    mStatisticBtn.setOnClickListener( v -> new Thread(new QueryUsageInfo()).start());
+    mStatisticBtn.setOnClickListener(v -> onStatisticBtnClick());
     mStatisticBtn.setVisibility(View.GONE);
     if (SPUtils.getBoolean("hasLogin", false, CommonUtil.context())) {
       mLoginView.setVisibility(View.GONE);
@@ -92,17 +90,46 @@ public class CameraFragment extends BaseFragment {
     dialog.show();
   }
 
+  private void onStatisticBtnClick() {
+    int photoCount = SPUtils.getInt(Constant.PRODUCE_PHOTO_COUNT, 0, CommonUtil.context());
+    int videoCount = SPUtils.getInt(Constant.PRODUCE_VIDEO_COUNT, 0, CommonUtil.context());
+    String message = "你已经在LiCamera上" + "\n" + "创作图片：" + photoCount + "  张" + "\n" + "创作视频：" + videoCount + "  部" + "\n";
+    showUsageStatistic(message);
+    new Thread(new UpdateUsageInfo()).start();
+  }
+
+  //登录的时候将服务器的同步到本地，登录后的全部由本地同步到服务器
+  //表中再加个用户登录状态？
   //后面放到presenter里面去
-  public class QueryUsageInfo implements Runnable {
+  public class UpdateUsageInfo implements Runnable {
     @Override
     public void run() {
+      //先判断是否服务器和本地数据一致，一致则不用更新
       String username = SPUtils.getString("userName", "",CommonUtil.context());
       if (!TextUtils.isEmpty(username)) {
         String attr = "?username=" + username;
         String infoString = WebServiceGet.executeHttpGet("UsageInfoServlet", attr);//获取服务器返回的数据
+        if (infoString == null) {
+          getActivity().runOnUiThread(() -> {
+            //后面弄一个Toast工具类
+            Toast error = Toast.makeText(CommonUtil.context(),"获取服务器数据失败，请检查网络状态",Toast.LENGTH_SHORT);
+            error.setGravity(Gravity.CENTER,0,0);
+            error.show();
+          });
+          return;
+        }
         String[] usage = infoString.split(",");
-        String message = "你已经在LiCamera上"  + "\n" + "创作图片：" + usage[0] + "  张" + "\n" + "创作视频：" + usage[1] + "  部" + "\n";
-        getActivity().runOnUiThread(() -> showUsageStatistic(message));
+        int photoCount = SPUtils.getInt(Constant.PRODUCE_PHOTO_COUNT, 0, CommonUtil.context());
+        int videoCount = SPUtils.getInt(Constant.PRODUCE_VIDEO_COUNT, 0, CommonUtil.context());
+        if (Integer.parseInt(usage[0]) != photoCount || Integer.parseInt(usage[1]) != videoCount) {
+          attr = "?username=" + username + "&photocount=" + photoCount + "&videocount=" + videoCount;
+          infoString = WebServiceGet.executeHttpGet("PhotoCountServlet", attr);//获取服务器返回的数据
+          if(infoString == null) {
+            Toast error = Toast.makeText(CommonUtil.context(),"同步数据失败，请检查网络状态",Toast.LENGTH_SHORT);
+            error.setGravity(Gravity.CENTER,0,0);
+            error.show();
+          }
+        }
       }
     }
   }

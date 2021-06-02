@@ -260,11 +260,16 @@ public class VideoGlRender implements GLSurfaceView.Renderer, SurfaceTexture.OnF
     }
 
     protected int loadShader(int shaderType, String source) {
+        //创建shader
         int shader = GLES20.glCreateShader(shaderType);
         if (shader != 0) {
+            //加载shader源代码
             GLES20.glShaderSource(shader, source);
+            //编译
             GLES20.glCompileShader(shader);
+            // 存放编译成功shader数量的数组
             int[] compiled = new int[1];
+            //获得shader的编译情况
             GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS,
                     compiled, 0);
             if (compiled[0] == 0) {
@@ -287,15 +292,19 @@ public class VideoGlRender implements GLSurfaceView.Renderer, SurfaceTexture.OnF
         if (pixelShader == 0) {
             return 0;
         }
-
+        //创建程序
         int program = GLES20.glCreateProgram();
+        // 若程序创建成功则向程序中加入顶点着色器与片元着色器
         if (program != 0) {
             GLES20.glAttachShader(program, vertexShader);
             checkGlError("glAttachShader");
             GLES20.glAttachShader(program, pixelShader);
             checkGlError("glAttachShader");
+            //链接程序
             GLES20.glLinkProgram(program);
+            // 存放链接成功program数量的数组
             int[] linkStatus = new int[1];
+            // 获取program的链接情况
             GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS,
                     linkStatus, 0);
             if (linkStatus[0] != GLES20.GL_TRUE) {

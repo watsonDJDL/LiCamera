@@ -1,5 +1,10 @@
 package com.linfeng.licamera.login;
 
+import android.view.Gravity;
+import android.widget.Toast;
+
+import com.linfeng.licamera.util.CommonUtil;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
